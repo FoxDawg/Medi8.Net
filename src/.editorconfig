@@ -34,6 +34,14 @@ dotnet_diagnostic.SA1602.severity = none
 [*.cs]
 dotnet_diagnostic.SA1313.severity = none
 
+# Prefix local calls with this.
+[*.cs]
+dotnet_diagnostic.SA1101.severity = none
+
+# Trailing commas in initializers
+[*.cs]
+dotnet_diagnostic.SA1413.severity = none
+
 # A C# code file is missing a standard file header.
 [*.cs]
 dotnet_diagnostic.SA1633.severity = none
@@ -63,9 +71,15 @@ dotnet_diagnostic.CA1852.severity = none
 dotnet_diagnostic.CA1062.severity = none
 
 # Use ConfigureAwait
+[*Controller.cs]
+dotnet_diagnostic.CA2007.severity = none
+# Use ConfigureAwait
 [*Tests.cs]
 dotnet_diagnostic.CA2007.severity = none
 
+# Use Async suffix for async methods
+[*Controller.cs]
+dotnet_diagnostic.VSTHRD200.severity = none
 # Use Async suffix for async methods
 [*Tests.cs]
 dotnet_diagnostic.VSTHRD200.severity = none

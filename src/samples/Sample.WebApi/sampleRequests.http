@@ -1,0 +1,10 @@
+POST http://localhost:5093/products?productname=myproduct
+Content-Type: application/json
+
+{}
+
+###
+GET http://localhost:5093/products?productid=1
+Accept: application/json
+
+###
