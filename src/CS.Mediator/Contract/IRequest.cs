@@ -7,11 +7,13 @@ public interface IRequest
 }
 
 // Empty marker interface
+// ReSharper disable once UnusedTypeParameter
 public interface ICommand<out TResponse> : IRequest
 {
 }
 
 // Empty marker interface
+// ReSharper disable once UnusedTypeParameter
 public interface IQuery<out TResponse> : IRequest
 {
 }

@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace CS.Mediator.Contract;
 
@@ -14,8 +16,8 @@ public class ValidationResults : ReadOnlyCollection<ValidationResult>
     {
     }
 
-    public ValidationResults(List<ValidationResult> list)
-        : base(list)
+    public ValidationResults(ICollection<ValidationResult> list)
+        : base(list.ToList())
     {
     }
 

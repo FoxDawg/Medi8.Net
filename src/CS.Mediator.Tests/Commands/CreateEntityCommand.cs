@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using CS.Mediator.Contract;
 using CS.Mediator.Handler;
 
@@ -9,15 +13,14 @@ public record CreateEntityCommand(string Name) : ICommand<CreateEntityCommand.En
 
     public class CreateEntityCommandHandler : CommandHandlerBase<CreateEntityCommand, EntityCreated>
     {
-        public override async Task<ValidationResults> ValidateAsync(CreateEntityCommand command, CancellationToken token)
+        public override Task<ValidationResults> ValidateAsync(CreateEntityCommand command, CancellationToken token)
         {
-            await Task.CompletedTask;
             if (command.Name.Contains("invalid", StringComparison.OrdinalIgnoreCase))
             {
-                return new ValidationResults(new List<ValidationResult> { new(nameof(Name), "Cannot have name containing 'invalid'") });
+                return Task.FromResult(new ValidationResults(new List<ValidationResult> { new (nameof(CreateEntityCommand.Name), "Cannot have name containing 'invalid'") }));
             }
 
-            return ValidationResults.Empty;
+            return Task.FromResult(ValidationResults.Empty);
         }
 
         public override Task<EntityCreated> HandleAsync(ProcessingContext<CreateEntityCommand, EntityCreated> context)

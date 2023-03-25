@@ -1,3 +1,6 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using CS.Mediator.Contract;
 using CS.Mediator.Handler;
 
@@ -14,25 +17,24 @@ public record GetEntityQuery(long Id) : IQuery<GetEntityQuery.Entity>
 
     public class GetEntityQueryHandler : QueryHandlerBase<GetEntityQuery, Entity?>
     {
-        public override async Task<ValidationResults> ValidateAsync(GetEntityQuery query, CancellationToken token)
+        public override Task<ValidationResults> ValidateAsync(GetEntityQuery query, CancellationToken token)
         {
-            await Task.CompletedTask;
             if (long.IsNegative(query.Id))
             {
-                return new ValidationResults(new[] { new ValidationResult(nameof(Id), "Entity ID must be greater 0") });
+                return Task.FromResult(new ValidationResults(new[] { new ValidationResult(nameof(GetEntityQuery.Id), "Entity ID must be greater 0") }));
             }
 
-            return ValidationResults.Empty;
+            return Task.FromResult(ValidationResults.Empty);
         }
 
         public override async Task<Entity?> HandleAsync(ProcessingContext<GetEntityQuery, Entity?> context)
         {
-            await Task.CompletedTask;
+            await Task.CompletedTask.ConfigureAwait(false);
             return context.Request.Id switch
             {
                 ExceptionId => throw new ArithmeticException(),
                 NonExistingId => null,
-                _ => new Entity(context.Request.Id),
+                _ => new Entity(context.Request.Id)
             };
         }
     }

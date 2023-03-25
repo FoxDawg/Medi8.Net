@@ -1,3 +1,6 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using CS.Mediator.Contract;
 using CS.Mediator.Setup;
 using CS.Mediator.Tests.Commands;
@@ -81,22 +84,22 @@ public sealed class CommandHandlerWithPipelineTests
 
     private class AuthenticationFilter : IPipelineFilter
     {
-        private readonly bool _isAuthenticated;
+        private readonly bool isAuthenticated;
 
         public AuthenticationFilter(bool isAuthenticated)
         {
-            _isAuthenticated = isAuthenticated;
+            this.isAuthenticated = isAuthenticated;
         }
 
-        public async Task InvokeAsync(ProcessingContext context, NextFilter next)
+        public async Task InvokeAsync(ProcessingContext context, NextFilter nextFilter)
         {
-            if (!_isAuthenticated)
+            if (!this.isAuthenticated)
             {
                 context.WriteTo(StatusCode.Forbidden);
                 return;
             }
 
-            await next(context);
+            await nextFilter(context);
         }
     }
 }

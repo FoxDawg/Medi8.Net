@@ -1,3 +1,4 @@
+using System;
 using CS.Mediator.Contract;
 using Microsoft.Extensions.DependencyInjection;
 

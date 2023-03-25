@@ -1,19 +1,23 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+
 namespace CS.Mediator.Setup;
 
 internal class PipelineBuilder
 {
-    private readonly MediatorConfiguration _configuration;
-    private readonly IServiceProvider _provider;
+    private readonly MediatorConfiguration configuration;
+    private readonly IServiceProvider provider;
 
     public PipelineBuilder(MediatorConfiguration configuration, IServiceProvider provider)
     {
-        _configuration = configuration;
-        _provider = provider;
+        this.configuration = configuration;
+        this.provider = provider;
     }
 
     internal NextFilter Build()
     {
-        var filterFactories = _configuration.GetFilters();
+        var filterFactories = this.configuration.GetFilters();
         if (!filterFactories.Any())
         {
             return _ => Task.CompletedTask;
@@ -22,7 +26,7 @@ internal class PipelineBuilder
         var pipeline = new NextFilter[filterFactories.Count];
         for (var i = filterFactories.Count - 1; i >= 0; i--)
         {
-            var filter = filterFactories[i](_provider);
+            var filter = filterFactories[i](this.provider);
             if (i == filterFactories.Count - 1)
             {
                 pipeline[i] = ctx => filter.InvokeAsync(ctx, _ => Task.CompletedTask);

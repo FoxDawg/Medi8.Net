@@ -1,0 +1,63 @@
+# A C# using directive is placed outside of a namespace element.
+[*.cs]
+dotnet_diagnostic.SA1200.severity = none
+
+# Braces.
+[*.cs]
+dotnet_diagnostic.SA1012.severity = suggestion
+[*.cs]
+dotnet_diagnostic.SA1009.severity = none
+[*.cs]
+dotnet_diagnostic.SA1014.severity = none
+
+# New should be followed by space
+[*.cs]
+dotnet_diagnostic.SA1000.severity = none
+
+# Static before non-static
+[*.cs]
+dotnet_diagnostic.SA1204.severity = none
+
+# Public before internal
+[*.cs]
+dotnet_diagnostic.SA1202.severity = none
+
+# Elements should be separated by blank line
+[*.cs]
+dotnet_diagnostic.SA1516.severity = none
+
+# Enumeration items should be documented
+[*.cs]
+dotnet_diagnostic.SA1602.severity = none
+
+# Parameter should begin with lower case letter
+[*.cs]
+dotnet_diagnostic.SA1313.severity = none
+
+# A C# code file is missing a standard file header.
+[*.cs]
+dotnet_diagnostic.SA1633.severity = none
+
+# Elements should be documented
+[*.cs]
+dotnet_diagnostic.SA1600.severity = none
+
+# Remove underscores
+[*Tests.cs]
+dotnet_diagnostic.CA1707.severity = none
+
+# Do not nest public types
+[*.cs]
+dotnet_diagnostic.CA1034.severity = none
+
+# Check for null
+[*.cs]
+dotnet_diagnostic.CA1062.severity = none
+
+# Use ConfigureAwait
+[*Tests.cs]
+dotnet_diagnostic.CA2007.severity = none
+
+# Use Async suffix for async methods
+[*Tests.cs]
+dotnet_diagnostic.VSTHRD200.severity = none

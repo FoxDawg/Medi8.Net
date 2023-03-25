@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using CS.Mediator.Contract;
 using CS.Mediator.Handler;
 
@@ -7,15 +11,14 @@ public record DoWithoutResultCommand(string Parameter) : ICommand<EmptyResult>
 {
     public class DoWithoutResultCommandHandler : CommandHandlerBase<DoWithoutResultCommand, EmptyResult>
     {
-        public override async Task<ValidationResults> ValidateAsync(DoWithoutResultCommand command, CancellationToken token)
+        public override Task<ValidationResults> ValidateAsync(DoWithoutResultCommand command, CancellationToken token)
         {
-            await Task.CompletedTask;
             if (command.Parameter.Contains("invalid", StringComparison.OrdinalIgnoreCase))
             {
-                return new ValidationResults(new List<ValidationResult> { new(nameof(Parameter), "Invalid operation") });
+                return Task.FromResult(new ValidationResults(new List<ValidationResult> { new (nameof(DoWithoutResultCommand.Parameter), "Invalid operation") }));
             }
 
-            return ValidationResults.Empty;
+            return Task.FromResult(ValidationResults.Empty);
         }
 
         public override Task<EmptyResult> HandleAsync(ProcessingContext<DoWithoutResultCommand, EmptyResult> context)

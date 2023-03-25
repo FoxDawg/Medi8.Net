@@ -1,3 +1,6 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using CS.Mediator.Contract;
 using CS.Mediator.Setup;
 using CS.Mediator.Tests.Queries;
@@ -9,26 +12,26 @@ namespace CS.Mediator.Tests;
 
 public sealed class QueryHandlerTests : IDisposable
 {
-    private readonly ServiceProvider _serviceProvider;
+    private readonly ServiceProvider serviceProvider;
 
     public QueryHandlerTests()
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddMediator(
             config => { config.AddHandler<GetEntityQuery, GetEntityQuery.GetEntityQueryHandler>(); });
-        _serviceProvider = serviceCollection.BuildServiceProvider();
+        this.serviceProvider = serviceCollection.BuildServiceProvider();
     }
 
     public void Dispose()
     {
-        _serviceProvider.Dispose();
+        this.serviceProvider.Dispose();
     }
 
     [Fact]
     public async Task Handles_Query_Successfully()
     {
         // Arrange
-        var mediator = _serviceProvider.GetRequiredService<IMediator>();
+        var mediator = this.serviceProvider.GetRequiredService<IMediator>();
         var query = new GetEntityQuery(GetEntityQuery.ValidId);
 
         // Act
@@ -41,12 +44,12 @@ public sealed class QueryHandlerTests : IDisposable
         result.Result.As<GetEntityQuery.Entity>().Should().NotBeNull();
         result.Result.As<GetEntityQuery.Entity>().Id.Should().Be(query.Id);
     }
-    
+
     [Fact]
     public async Task Handles_QueryWithNullResult_Successfully()
     {
         // Arrange
-        var mediator = _serviceProvider.GetRequiredService<IMediator>();
+        var mediator = this.serviceProvider.GetRequiredService<IMediator>();
         var query = new GetEntityQuery(GetEntityQuery.NonExistingId);
 
         // Act
@@ -62,7 +65,7 @@ public sealed class QueryHandlerTests : IDisposable
     public async Task Validates_Query_Successfully()
     {
         // Arrange
-        var mediator = _serviceProvider.GetRequiredService<IMediator>();
+        var mediator = this.serviceProvider.GetRequiredService<IMediator>();
         var query = new GetEntityQuery(GetEntityQuery.InvalidId);
 
         // Act
@@ -79,7 +82,7 @@ public sealed class QueryHandlerTests : IDisposable
     public async Task Exception_Propagates_BackToCaller()
     {
         // Arrange
-        var mediator = _serviceProvider.GetRequiredService<IMediator>();
+        var mediator = this.serviceProvider.GetRequiredService<IMediator>();
         var query = new GetEntityQuery(GetEntityQuery.ExceptionId);
 
         var action = async () => await mediator.HandleQueryAsync<GetEntityQuery, GetEntityQuery.Entity>(query, CancellationToken.None);

@@ -1,15 +1,18 @@
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using CS.Mediator.Contract;
 
 namespace CS.Mediator.Handler;
 
 public abstract class QueryHandlerBase<TQuery, TResponse> : IQueryHandler<TQuery, TResponse>
-    where TQuery : IQuery<TResponse> 
+    where TQuery : IQuery<TResponse>
     where TResponse : class?
 {
     public async Task ValidateAsync(ProcessingContext<TQuery, TResponse> context)
     {
-        var validationResults = await ValidateAsync(context.Request, context.Token);
-        
+        var validationResults = await this.ValidateAsync(context.Request, context.Token).ConfigureAwait(false);
+
         if (validationResults.Any())
         {
             context.WriteTo(validationResults);
@@ -19,9 +22,8 @@ public abstract class QueryHandlerBase<TQuery, TResponse> : IQueryHandler<TQuery
 
     public abstract Task<TResponse> HandleAsync(ProcessingContext<TQuery, TResponse> context);
 
-    public virtual async Task<ValidationResults> ValidateAsync(TQuery query, CancellationToken token)
+    public virtual Task<ValidationResults> ValidateAsync(TQuery query, CancellationToken token)
     {
-        await Task.CompletedTask;
-        return new ValidationResults();
+        return Task.FromResult(new ValidationResults());
     }
 }

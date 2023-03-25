@@ -1,0 +1,17 @@
+<Project>
+
+    <ItemGroup>
+        <!-- Add reference to StyleCop analyzers to all projects  -->
+        <PackageReference Include="StyleCop.Analyzers" Version="1.1.118"/>
+        <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.5.22"/>
+    </ItemGroup>
+
+    <PropertyGroup>
+        <TargetFramework>net7.0</TargetFramework>
+        <LangVersion>latest</LangVersion>
+        <Nullable>enable</Nullable>
+        <AnalysisMode>AllEnabledByDefault</AnalysisMode>
+        <CheckEolTargetFramework>false</CheckEolTargetFramework>
+    </PropertyGroup>
+
+</Project>

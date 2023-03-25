@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 using CS.Mediator.Contract;
 
 namespace CS.Mediator;
@@ -8,7 +11,7 @@ public class ProcessingContext
 
     public void WriteTo(StatusCode statusCode)
     {
-        StatusCode = statusCode;
+        this.StatusCode = statusCode;
     }
 }
 
@@ -16,38 +19,38 @@ public class ProcessingContext<TRequest, TResult> : ProcessingContext
     where TRequest : IRequest
     where TResult : class?
 {
-    private readonly List<ValidationResult> _validationResults = new();
+    private readonly List<ValidationResult> validationResults = new();
 
     internal ProcessingContext(TRequest request, CancellationToken token)
     {
-        Request = request;
-        Token = token;
+        this.Request = request;
+        this.Token = token;
     }
 
-    public bool IsValid => !_validationResults.Any();
+    public bool IsValid => !this.validationResults.Any();
 
     public TRequest Request { get; }
     internal TResult Result { get; private set; } = default!;
 
     public CancellationToken Token { get; }
 
-    public void WriteTo(IEnumerable<ValidationResult> validationResults)
+    public void WriteTo(IEnumerable<ValidationResult> results)
     {
-        _validationResults.AddRange(validationResults);
+        this.validationResults.AddRange(results);
     }
 
     internal void WriteTo(TResult result)
     {
-        Result = result;
+        this.Result = result;
     }
 
     internal RequestResult<TResult> ToRequestResult()
     {
-        if (StatusCode != StatusCode.Ok || !IsValid)
+        if (this.StatusCode != StatusCode.Ok || !this.IsValid)
         {
-            return new RequestResult<TResult>(_validationResults, StatusCode);
+            return new RequestResult<TResult>(this.validationResults, this.StatusCode);
         }
 
-        return new RequestResult<TResult>(Result, StatusCode);
+        return new RequestResult<TResult>(this.Result, this.StatusCode);
     }
 }

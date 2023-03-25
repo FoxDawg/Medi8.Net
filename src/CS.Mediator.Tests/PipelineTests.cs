@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using CS.Mediator.Contract;
 using CS.Mediator.Setup;
 using FluentAssertions;
@@ -6,7 +7,7 @@ using Xunit;
 
 namespace CS.Mediator.Tests;
 
-public sealed class PipelineTests 
+public sealed class PipelineTests
 {
     [Fact]
     public async Task PipelineWith_Three_Filters_Works_As_Expected()
@@ -52,17 +53,17 @@ public sealed class PipelineTests
 
     private class TestFilter : IPipelineFilter
     {
-        private readonly StatusCode _order;
+        private readonly StatusCode order;
 
         public TestFilter(StatusCode order)
         {
-            _order = order;
+            this.order = order;
         }
 
-        public async Task InvokeAsync(ProcessingContext context, NextFilter next)
+        public async Task InvokeAsync(ProcessingContext context, NextFilter nextFilter)
         {
-            context.WriteTo(_order);
-            await next(context);
+            context.WriteTo(this.order);
+            await nextFilter(context);
         }
     }
 }

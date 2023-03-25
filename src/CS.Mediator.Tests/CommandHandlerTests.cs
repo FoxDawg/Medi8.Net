@@ -1,3 +1,6 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
 using CS.Mediator.Contract;
 using CS.Mediator.Setup;
 using CS.Mediator.Tests.Commands;
@@ -9,7 +12,7 @@ namespace CS.Mediator.Tests;
 
 public sealed class CommandHandlerTests : IDisposable
 {
-    private readonly ServiceProvider _serviceProvider;
+    private readonly ServiceProvider serviceProvider;
 
     public CommandHandlerTests()
     {
@@ -21,23 +24,23 @@ public sealed class CommandHandlerTests : IDisposable
                 config.AddHandler<ThrowExceptionCommand, ThrowExceptionCommand.ThrowExceptionCommandHandler>();
                 config.AddHandler<DoWithoutResultCommand, DoWithoutResultCommand.DoWithoutResultCommandHandler>();
             });
-        _serviceProvider = serviceCollection.BuildServiceProvider();
+        this.serviceProvider = serviceCollection.BuildServiceProvider();
     }
 
     public void Dispose()
     {
-        _serviceProvider.Dispose();
+        this.serviceProvider.Dispose();
     }
 
     [Fact]
     public async Task Handles_CommandWithoutResult_Successfully()
     {
         // Arrange
-        var mediator = _serviceProvider.GetRequiredService<IMediator>();
+        var mediator = this.serviceProvider.GetRequiredService<IMediator>();
         var command = new DoWithoutResultCommand("foobar");
 
         // Act
-        var result = await mediator.HandleCommandAsync(command, CancellationToken.None);
+        var result = await mediator.HandleCommandAsync(command, CancellationToken.None).ConfigureAwait(false);
 
         // Assert
         result.IsSuccessful.Should().BeTrue();
@@ -50,7 +53,7 @@ public sealed class CommandHandlerTests : IDisposable
     public async Task Handles_CommandWithResult_Successfully()
     {
         // Arrange
-        var mediator = _serviceProvider.GetRequiredService<IMediator>();
+        var mediator = this.serviceProvider.GetRequiredService<IMediator>();
         var command = new CreateEntityCommand("foobar");
 
         // Act
@@ -67,7 +70,7 @@ public sealed class CommandHandlerTests : IDisposable
     public async Task Validates_CommandWithoutResult_Successfully()
     {
         // Arrange
-        var mediator = _serviceProvider.GetRequiredService<IMediator>();
+        var mediator = this.serviceProvider.GetRequiredService<IMediator>();
         var command = new DoWithoutResultCommand("invalid");
 
         // Act
@@ -84,7 +87,7 @@ public sealed class CommandHandlerTests : IDisposable
     public async Task Validates_CommandWithResult_Successfully()
     {
         // Arrange
-        var mediator = _serviceProvider.GetRequiredService<IMediator>();
+        var mediator = this.serviceProvider.GetRequiredService<IMediator>();
         var command = new CreateEntityCommand("invalid");
 
         // Act
@@ -100,7 +103,7 @@ public sealed class CommandHandlerTests : IDisposable
     [Fact]
     public async Task Exception_Propagates_BackToCaller()
     {
-        var mediator = _serviceProvider.GetRequiredService<IMediator>();
+        var mediator = this.serviceProvider.GetRequiredService<IMediator>();
 
         var command = new ThrowExceptionCommand();
 
