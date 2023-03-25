@@ -36,7 +36,7 @@ internal sealed class RequestProcessor : IMediator
 
         if (context.StatusCode != StatusCode.Ok)
         {
-            context.WriteTo(new[] {new ValidationResult("Pipeline", $"Filter pipeline failed returned {context.StatusCode}") });
+            context.WriteTo(new[] { new ValidationResult("Pipeline", $"Filter pipeline failed returned {context.StatusCode}") });
             return context.ToRequestResult();
         }
 
@@ -59,7 +59,7 @@ internal sealed class RequestProcessor : IMediator
 
         if (context.StatusCode != StatusCode.Ok)
         {
-            context.WriteTo(new[] {new ValidationResult("Pipeline", $"Filter pipeline failed returned {context.StatusCode}") });
+            context.WriteTo(new[] { new ValidationResult("Pipeline", $"Filter pipeline failed returned {context.StatusCode}") });
             return context.ToRequestResult();
         }
 
