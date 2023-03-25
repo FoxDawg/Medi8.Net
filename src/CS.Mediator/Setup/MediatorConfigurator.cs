@@ -9,7 +9,8 @@ namespace CS.Mediator.Setup;
 public class MediatorConfigurator
 {
     private readonly HashSet<HandlerMap> handlers;
-    private readonly List<Func<IServiceProvider, IPipelineFilter>> pipelineFilters;
+    private readonly List<Func<IServiceProvider, IProcessor>> postprocessors;
+    private readonly List<Func<IServiceProvider, IProcessor>> preprocessors;
     private readonly IServiceCollection serviceCollection;
 
     public MediatorConfigurator(IServiceCollection serviceCollection)
@@ -17,15 +18,16 @@ public class MediatorConfigurator
         this.serviceCollection = serviceCollection;
 
         this.handlers = new HashSet<HandlerMap>();
-        this.pipelineFilters = new List<Func<IServiceProvider, IPipelineFilter>>();
+        this.preprocessors = new List<Func<IServiceProvider, IProcessor>>();
+        this.postprocessors = new List<Func<IServiceProvider, IProcessor>>();
     }
 
     internal MediatorConfiguration Build()
     {
-        return new MediatorConfiguration(this.handlers, this.pipelineFilters);
+        return new MediatorConfiguration(this.handlers, this.preprocessors, this.postprocessors);
     }
 
-    public void AddHandler<TRequest, THandler>()
+    public void AddHandler <TRequest, THandler>()
         where THandler : class
     {
         if (this.handlers.Any(o => o.RequestType == typeof(TRequest)))
@@ -37,11 +39,16 @@ public class MediatorConfigurator
         this.handlers.Add(new HandlerMap(typeof(TRequest), typeof(THandler)));
     }
 
-    public void AddPipelineFilter<TFilter>(Func<IServiceProvider, TFilter> factoryFunc)
-        where TFilter : class, IPipelineFilter
+    public void AddToPipeline(Func<IServiceProvider, IPreProcessor> factoryFunc)
     {
         this.serviceCollection.AddScoped(factoryFunc);
-        this.pipelineFilters.Add(factoryFunc);
+        this.preprocessors.Add(factoryFunc);
+    }
+
+    public void AddToPipeline(Func<IServiceProvider, IPostProcessor> factoryFunc)
+    {
+        this.serviceCollection.AddScoped(factoryFunc);
+        this.postprocessors.Add(factoryFunc);
     }
 }
 

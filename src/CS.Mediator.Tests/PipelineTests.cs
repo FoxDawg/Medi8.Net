@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using CS.Mediator.Contract;
+using CS.Mediator.Pipeline;
 using CS.Mediator.Setup;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,20 +11,20 @@ namespace CS.Mediator.Tests;
 public sealed class PipelineTests
 {
     [Fact]
-    public async Task PipelineWith_Three_Filters_Works_As_Expected()
+    public async Task PipelineWith_Three_PreFilters_Works_As_Expected()
     {
         // Arrange
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddMediator(
             config =>
             {
-                config.AddPipelineFilter<TestFilter>(_ => new TestFilter(StatusCode.Unauthorized));
-                config.AddPipelineFilter<TestFilter>(_ => new TestFilter(StatusCode.BadRequest));
-                config.AddPipelineFilter<TestFilter>(_ => new TestFilter(StatusCode.InternalError));
+                config.AddToPipeline(_ => new PreFilter(StatusCode.Unauthorized));
+                config.AddToPipeline(_ => new PreFilter(StatusCode.BadRequest));
+                config.AddToPipeline(_ => new PreFilter(StatusCode.InternalError));
             });
         await using var serviceProvider = serviceCollection.BuildServiceProvider();
         var pipelineBuilder = serviceProvider.GetRequiredService<PipelineBuilder>();
-        var pipelineStart = pipelineBuilder.Build();
+        var pipelineStart = pipelineBuilder.BuildPreProcessorPipeline();
         var context = new ProcessingContext();
 
         // Act
@@ -34,6 +35,29 @@ public sealed class PipelineTests
     }
 
     [Fact]
+    public async Task PipelineWith_TwoPostFilters_Works_As_Expected()
+    {
+        // Arrange
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddMediator(
+            config =>
+            {
+                config.AddToPipeline(_ => new PostFilter(StatusCode.BadRequest));
+                config.AddToPipeline(_ => new PostFilter(StatusCode.Unauthorized));
+            });
+        await using var serviceProvider = serviceCollection.BuildServiceProvider();
+        var pipelineBuilder = serviceProvider.GetRequiredService<PipelineBuilder>();
+        var pipelineStart = pipelineBuilder.BuildPostProcessorPipeline();
+        var context = new ProcessingContext();
+
+        // Act
+        await pipelineStart.Invoke(context);
+
+        // Assert
+        context.StatusCode.Should().Be(StatusCode.Unauthorized);
+    }
+
+    [Fact]
     public async Task PipelineWithoutFilters_Works_As_Expected()
     {
         // Arrange
@@ -41,7 +65,7 @@ public sealed class PipelineTests
         serviceCollection.AddMediator();
         await using var serviceProvider = serviceCollection.BuildServiceProvider();
         var pipelineBuilder = serviceProvider.GetRequiredService<PipelineBuilder>();
-        var pipelineStart = pipelineBuilder.Build();
+        var pipelineStart = pipelineBuilder.BuildPreProcessorPipeline();
         var context = new ProcessingContext();
 
         // Act
@@ -51,11 +75,27 @@ public sealed class PipelineTests
         context.StatusCode.Should().Be(StatusCode.Ok);
     }
 
-    private class TestFilter : IPipelineFilter
+    private class PreFilter : IPreProcessor
     {
         private readonly StatusCode order;
 
-        public TestFilter(StatusCode order)
+        public PreFilter(StatusCode order)
+        {
+            this.order = order;
+        }
+
+        public async Task InvokeAsync(ProcessingContext context, NextFilter nextFilter)
+        {
+            context.WriteTo(this.order);
+            await nextFilter(context);
+        }
+    }
+
+    private class PostFilter : IPostProcessor
+    {
+        private readonly StatusCode order;
+
+        public PostFilter(StatusCode order)
         {
             this.order = order;
         }

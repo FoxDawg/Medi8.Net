@@ -50,6 +50,10 @@ dotnet_diagnostic.CA1707.severity = none
 [*.cs]
 dotnet_diagnostic.CA1034.severity = none
 
+# Can be static
+[*.cs]
+dotnet_diagnostic.CA1822.severity = none
+
 # Can be sealed
 [*.cs]
 dotnet_diagnostic.CA1852.severity = none

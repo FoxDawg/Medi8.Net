@@ -1,6 +1,9 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CS.Mediator.Contract;
+using CS.Mediator.Pipeline;
 
 namespace CS.Mediator.Setup;
 
@@ -15,9 +18,20 @@ internal class PipelineBuilder
         this.provider = provider;
     }
 
-    internal NextFilter Build()
+    internal NextFilter BuildPreProcessorPipeline()
     {
-        var filterFactories = this.configuration.GetFilters();
+        var filterFactories = this.configuration.Preprocessors;
+        return this.BuildPipeline(filterFactories);
+    }
+
+    internal NextFilter BuildPostProcessorPipeline()
+    {
+        var filterFactories = this.configuration.Postprocessors;
+        return this.BuildPipeline(filterFactories);
+    }
+
+    private NextFilter BuildPipeline(IList<Func<IServiceProvider, IProcessor>> filterFactories)
+    {
         if (!filterFactories.Any())
         {
             return _ => Task.CompletedTask;

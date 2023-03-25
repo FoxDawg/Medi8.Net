@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -7,7 +8,19 @@ namespace CS.Mediator;
 
 public class ProcessingContext
 {
+    private readonly ConcurrentDictionary<string, object> payloads = new();
+
     public StatusCode StatusCode { get; private set; } = StatusCode.Ok;
+
+    public bool TryAddPayload(string key, object payload)
+    {
+        return this.payloads.TryAdd(key, payload);
+    }
+
+    public object? TryGetPayload(string key)
+    {
+        return this.payloads.TryGetValue(key, out var payload) ? payload : null;
+    }
 
     public void WriteTo(StatusCode statusCode)
     {
@@ -15,7 +28,7 @@ public class ProcessingContext
     }
 }
 
-public class ProcessingContext<TRequest, TResult> : ProcessingContext
+public class ProcessingContext <TRequest, TResult> : ProcessingContext
     where TRequest : IRequest
     where TResult : class?
 {

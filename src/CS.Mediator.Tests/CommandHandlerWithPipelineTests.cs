@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using CS.Mediator.Contract;
+using CS.Mediator.Pipeline;
 using CS.Mediator.Setup;
 using CS.Mediator.Tests.Commands;
 using FluentAssertions;
@@ -13,6 +14,30 @@ namespace CS.Mediator.Tests;
 public sealed class CommandHandlerWithPipelineTests
 {
     [Fact]
+    public async Task PostFilter_Handles_Command()
+    {
+        // Arrange
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddMediator(
+            config =>
+            {
+                config.AddHandler<CreateEntityCommand, CreateEntityCommand.CreateEntityCommandHandler>();
+                config.AddToPipeline(_ => new PostFilter(StatusCode.InternalError));
+            });
+        await using var serviceProvider = serviceCollection.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var command = new CreateEntityCommand("foobar");
+
+        // Act
+        var result = await mediator.HandleCommandAsync<CreateEntityCommand, CreateEntityCommand.EntityCreated>(command, CancellationToken.None);
+
+        // Assert
+        result.IsSuccessful.Should().BeFalse();
+        result.StatusCode.Should().Be(StatusCode.InternalError);
+        result.Result.Should().BeNull();
+    }
+
+    [Fact]
     public async Task Handles_AuthorizedCommandWithResult_Successfully()
     {
         // Arrange
@@ -21,7 +46,7 @@ public sealed class CommandHandlerWithPipelineTests
             config =>
             {
                 config.AddHandler<CreateEntityCommand, CreateEntityCommand.CreateEntityCommandHandler>();
-                config.AddPipelineFilter(_ => new AuthenticationFilter(true));
+                config.AddToPipeline(_ => new AuthenticationFilter(true));
             });
         await using var serviceProvider = serviceCollection.BuildServiceProvider();
         var mediator = serviceProvider.GetRequiredService<IMediator>();
@@ -46,7 +71,7 @@ public sealed class CommandHandlerWithPipelineTests
             config =>
             {
                 config.AddHandler<CreateEntityCommand, CreateEntityCommand.CreateEntityCommandHandler>();
-                config.AddPipelineFilter(_ => new AuthenticationFilter(false));
+                config.AddToPipeline(_ => new AuthenticationFilter(false));
             });
         await using var serviceProvider = serviceCollection.BuildServiceProvider();
         var mediator = serviceProvider.GetRequiredService<IMediator>();
@@ -70,7 +95,7 @@ public sealed class CommandHandlerWithPipelineTests
             config =>
             {
                 config.AddHandler<ThrowExceptionCommand, ThrowExceptionCommand.ThrowExceptionCommandHandler>();
-                config.AddPipelineFilter(_ => new AuthenticationFilter(true));
+                config.AddToPipeline(_ => new AuthenticationFilter(true));
             });
         await using var serviceProvider = serviceCollection.BuildServiceProvider();
         var mediator = serviceProvider.GetRequiredService<IMediator>();
@@ -82,7 +107,7 @@ public sealed class CommandHandlerWithPipelineTests
         await action.Should().ThrowAsync<ArithmeticException>();
     }
 
-    private class AuthenticationFilter : IPipelineFilter
+    private class AuthenticationFilter : IPreProcessor
     {
         private readonly bool isAuthenticated;
 
@@ -100,6 +125,22 @@ public sealed class CommandHandlerWithPipelineTests
             }
 
             await nextFilter(context);
+        }
+    }
+
+    private class PostFilter : IPostProcessor
+    {
+        private readonly StatusCode status;
+
+        public PostFilter(StatusCode status)
+        {
+            this.status = status;
+        }
+
+        public Task InvokeAsync(ProcessingContext context, NextFilter nextFilter)
+        {
+            context.WriteTo(this.status);
+            return Task.CompletedTask;
         }
     }
 }
