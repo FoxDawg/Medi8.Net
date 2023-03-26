@@ -30,7 +30,7 @@ public class ProductsController : Controller
             case Mediator.Contract.StatusCode.Ok:
                 return new OkObjectResult(result.Result);
             case Mediator.Contract.StatusCode.BadRequest:
-                return new BadRequestObjectResult(result.ValidationResults.ToModelStateDictionary());
+                return new BadRequestObjectResult(result.ProcessingResults.ToModelStateDictionary());
             default:
                 throw new InvalidOperationException("Case not handled.");
         }
@@ -46,7 +46,7 @@ public class ProductsController : Controller
             case Mediator.Contract.StatusCode.Ok:
                 return new OkObjectResult(result.Result);
             case Mediator.Contract.StatusCode.BadRequest:
-                return new BadRequestObjectResult(result.ValidationResults.ToModelStateDictionary());
+                return new BadRequestObjectResult(result.ProcessingResults.ToModelStateDictionary());
             default:
                 throw new InvalidOperationException("Case not handled.");
         }

@@ -18,14 +18,14 @@ public record FindProductByIdQuery(int Id) : IQuery<Product?>
             this.store = store;
         }
 
-        public override Task<ValidationResults> ValidateAsync(FindProductByIdQuery query, CancellationToken token)
+        public override Task<ProcessingResults> ValidateAsync(FindProductByIdQuery query, CancellationToken token)
         {
             if (query.Id < 0)
             {
-                return Task.FromResult(new ValidationResults(new[] {new ValidationResult($"{nameof(Id)}", "Must not be negative") }));
+                return Task.FromResult(new ProcessingResults(new[] {new ProcessingResult($"{nameof(Id)}", "Must not be negative") }));
             }
 
-            return Task.FromResult(ValidationResults.Empty);
+            return Task.FromResult(ProcessingResults.Empty);
         }
 
         public override Task<Product?> HandleAsync(ProcessingContext<FindProductByIdQuery, Product?> context)

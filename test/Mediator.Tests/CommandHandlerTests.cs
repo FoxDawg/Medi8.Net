@@ -1,10 +1,10 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Mediator.Contract;
 using Mediator.Setup;
 using Mediator.Tests.Commands;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -80,7 +80,7 @@ public sealed class CommandHandlerTests : IDisposable
         result.IsSuccessful.Should().BeFalse();
         result.StatusCode.Should().Be(StatusCode.BadRequest);
         result.Result.Should().BeNull();
-        result.ValidationResults.Should().ContainSingle();
+        result.ProcessingResults.Should().ContainSingle();
     }
 
     [Fact]
@@ -97,7 +97,7 @@ public sealed class CommandHandlerTests : IDisposable
         result.IsSuccessful.Should().BeFalse();
         result.StatusCode.Should().Be(StatusCode.BadRequest);
         result.Result.Should().BeNull();
-        result.ValidationResults.Should().ContainSingle();
+        result.ProcessingResults.Should().ContainSingle();
     }
 
     [Fact]

@@ -22,8 +22,8 @@ public abstract class CommandHandlerBase<TCommand, TResponse> : ICommandHandler<
 
     public abstract Task<TResponse> HandleAsync(ProcessingContext<TCommand, TResponse> context);
 
-    public virtual Task<ValidationResults> ValidateAsync(TCommand command, CancellationToken token)
+    public virtual Task<ProcessingResults> ValidateAsync(TCommand command, CancellationToken token)
     {
-        return Task.FromResult(new ValidationResults());
+        return Task.FromResult(new ProcessingResults());
     }
 }

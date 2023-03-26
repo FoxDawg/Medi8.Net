@@ -17,14 +17,14 @@ public record GetEntityQuery(long Id) : IQuery<GetEntityQuery.Entity>
 
     public class GetEntityQueryHandler : QueryHandlerBase<GetEntityQuery, Entity?>
     {
-        public override Task<ValidationResults> ValidateAsync(GetEntityQuery query, CancellationToken token)
+        public override Task<ProcessingResults> ValidateAsync(GetEntityQuery query, CancellationToken token)
         {
             if (long.IsNegative(query.Id))
             {
-                return Task.FromResult(new ValidationResults(new[] { new ValidationResult(nameof(GetEntityQuery.Id), "Entity ID must be greater 0") }));
+                return Task.FromResult(new ProcessingResults(new[] { new ProcessingResult(nameof(GetEntityQuery.Id), "Entity ID must be greater 0") }));
             }
 
-            return Task.FromResult(ValidationResults.Empty);
+            return Task.FromResult(ProcessingResults.Empty);
         }
 
         public override async Task<Entity?> HandleAsync(ProcessingContext<GetEntityQuery, Entity?> context)

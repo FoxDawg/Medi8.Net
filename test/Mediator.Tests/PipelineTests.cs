@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
+using FluentAssertions;
 using Mediator.Contract;
 using Mediator.Pipeline;
 using Mediator.Setup;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 

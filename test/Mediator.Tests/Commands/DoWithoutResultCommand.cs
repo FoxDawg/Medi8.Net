@@ -11,14 +11,14 @@ public record DoWithoutResultCommand(string Parameter) : ICommand<EmptyResult>
 {
     public class DoWithoutResultCommandHandler : CommandHandlerBase<DoWithoutResultCommand, EmptyResult>
     {
-        public override Task<ValidationResults> ValidateAsync(DoWithoutResultCommand command, CancellationToken token)
+        public override Task<ProcessingResults> ValidateAsync(DoWithoutResultCommand command, CancellationToken token)
         {
             if (command.Parameter.Contains("invalid", StringComparison.OrdinalIgnoreCase))
             {
-                return Task.FromResult(new ValidationResults(new List<ValidationResult> { new (nameof(DoWithoutResultCommand.Parameter), "Invalid operation") }));
+                return Task.FromResult(new ProcessingResults(new List<ProcessingResult> { new (nameof(DoWithoutResultCommand.Parameter), "Invalid operation") }));
             }
 
-            return Task.FromResult(ValidationResults.Empty);
+            return Task.FromResult(ProcessingResults.Empty);
         }
 
         public override Task<EmptyResult> HandleAsync(ProcessingContext<DoWithoutResultCommand, EmptyResult> context)

@@ -18,14 +18,14 @@ public record AddProductCommand(string Name) : ICommand<Product>
             this.store = store;
         }
 
-        public override Task<ValidationResults> ValidateAsync(AddProductCommand command, CancellationToken token)
+        public override Task<ProcessingResults> ValidateAsync(AddProductCommand command, CancellationToken token)
         {
             if (string.IsNullOrEmpty(command.Name))
             {
-                return Task.FromResult(new ValidationResults(new[] {new ValidationResult($"{nameof(Name)}", "Must not be empty") }));
+                return Task.FromResult(new ProcessingResults(new[] {new ProcessingResult($"{nameof(Name)}", "Must not be empty") }));
             }
 
-            return Task.FromResult(ValidationResults.Empty);
+            return Task.FromResult(ProcessingResults.Empty);
         }
 
         public override Task<Product> HandleAsync(ProcessingContext<AddProductCommand, Product> context)

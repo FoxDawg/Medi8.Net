@@ -9,12 +9,24 @@ namespace Mediator;
 public class ProcessingContext
 {
     private readonly ConcurrentDictionary<string, object> payloads = new();
-
+    private readonly List<ProcessingResult> processingResults = new();
+    public bool IsValid => !this.processingResults.Any();
+    protected ProcessingResults ProcessingResults => new(this.processingResults);
     public StatusCode StatusCode { get; private set; } = StatusCode.Ok;
 
     public bool TryAddPayload(string key, object payload)
     {
         return this.payloads.TryAdd(key, payload);
+    }
+
+    public void WriteTo(IEnumerable<ProcessingResult> results)
+    {
+        this.processingResults.AddRange(results);
+    }
+
+    public void WriteTo(ProcessingResult result)
+    {
+        this.processingResults.Add(result);
     }
 
     public object? TryGetPayload(string key)
@@ -32,25 +44,16 @@ public class ProcessingContext <TRequest, TResult> : ProcessingContext
     where TRequest : IRequest
     where TResult : class?
 {
-    private readonly List<ValidationResult> validationResults = new();
-
     internal ProcessingContext(TRequest request, CancellationToken token)
     {
         this.Request = request;
         this.Token = token;
     }
 
-    public bool IsValid => !this.validationResults.Any();
-
     public TRequest Request { get; }
     internal TResult Result { get; private set; } = default!;
 
     public CancellationToken Token { get; }
-
-    public void WriteTo(IEnumerable<ValidationResult> results)
-    {
-        this.validationResults.AddRange(results);
-    }
 
     internal void WriteTo(TResult result)
     {
@@ -61,7 +64,7 @@ public class ProcessingContext <TRequest, TResult> : ProcessingContext
     {
         if (this.StatusCode != StatusCode.Ok || !this.IsValid)
         {
-            return new RequestResult<TResult>(this.validationResults, this.StatusCode);
+            return new RequestResult<TResult>(this.ProcessingResults, this.StatusCode);
         }
 
         return new RequestResult<TResult>(this.Result, this.StatusCode);

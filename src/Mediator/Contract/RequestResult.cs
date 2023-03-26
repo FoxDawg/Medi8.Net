@@ -12,14 +12,14 @@ public record RequestResult<TResult>
         this.StatusCode = statusCode;
     }
 
-    internal RequestResult(IEnumerable<ValidationResult> validationResults, StatusCode statusCode)
+    internal RequestResult(IEnumerable<ProcessingResult> validationResults, StatusCode statusCode)
     {
-        this.ValidationResults = new ValidationResults(validationResults);
+        this.ProcessingResults = new ProcessingResults(validationResults);
         this.StatusCode = statusCode;
     }
 
     public TResult Result { get; } = default!;
     public StatusCode StatusCode { get; }
-    public bool IsSuccessful => this.StatusCode == StatusCode.Ok && !this.ValidationResults.Any();
-    public ValidationResults ValidationResults { get; } = ValidationResults.Empty;
+    public bool IsSuccessful => this.StatusCode == StatusCode.Ok && !this.ProcessingResults.Any();
+    public ProcessingResults ProcessingResults { get; } = ProcessingResults.Empty;
 }

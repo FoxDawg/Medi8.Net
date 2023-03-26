@@ -1,11 +1,11 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using Mediator.Contract;
 using Mediator.Pipeline;
 using Mediator.Setup;
 using Mediator.Tests.Commands;
-using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -83,7 +83,7 @@ public sealed class CommandHandlerWithPipelineTests
         // Assert
         result.IsSuccessful.Should().BeFalse();
         result.StatusCode.Should().Be(StatusCode.Forbidden);
-        result.ValidationResults.Should().ContainSingle();
+        result.ProcessingResults.Should().ContainSingle();
     }
 
     [Fact]

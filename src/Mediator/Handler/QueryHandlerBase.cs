@@ -22,8 +22,8 @@ public abstract class QueryHandlerBase<TQuery, TResponse> : IQueryHandler<TQuery
 
     public abstract Task<TResponse> HandleAsync(ProcessingContext<TQuery, TResponse> context);
 
-    public virtual Task<ValidationResults> ValidateAsync(TQuery query, CancellationToken token)
+    public virtual Task<ProcessingResults> ValidateAsync(TQuery query, CancellationToken token)
     {
-        return Task.FromResult(new ValidationResults());
+        return Task.FromResult(new ProcessingResults());
     }
 }
