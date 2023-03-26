@@ -2,10 +2,10 @@
 /shelf/
 /workspace.xml
 # Rider ignored files
+/contentModel.xml
+/.idea.Medi8.Net.iml
 /projectSettingsUpdater.xml
 /modules.xml
-/.idea.Medi8.Net.iml
-/contentModel.xml
 # Editor-based HTTP Client requests
 /httpRequests/
 # Datasource local storage ignored files
