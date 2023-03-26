@@ -77,7 +77,7 @@ The filters will be executed _in order of their registration_.
 If filters rely on results from previous filters or if you need to transport custom payloads through your pipeline,
 you can access respective methods on the `ProcessingContext`:
 ```csharp
-private class PreFilter : IPreProcessor
+public class PreFilter : IPreProcessor
 {
     public async Task InvokeAsync(ProcessingContext context, NextFilter nextFilter)
     {
@@ -89,7 +89,7 @@ private class PreFilter : IPreProcessor
 
 Intercepting the pipeline through filters is recommended to be done using status codes and adding errors to the context:
 ```csharp
-private class PreFilter : IPreProcessor
+public class PreFilter : IPreProcessor
 {
     public async Task InvokeAsync(ProcessingContext context, NextFilter nextFilter)
     {
