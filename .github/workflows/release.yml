@@ -54,7 +54,7 @@ jobs:
       - name: 'Compile version'
         id: compile-version
         run: |
-          echo "PACKAGE_VERSION=${{ env.PACKAGE_VERSION }}-alpha+${{github.run_number}}" >> $GITHUB_ENV
+          echo "PACKAGE_VERSION=${{ steps.version.outputs.version-without-v }}" >> $GITHUB_ENV
           echo ${{ env.PACKAGE_VERSION }}
 
       - name: Build and Publish Medi8.Net
