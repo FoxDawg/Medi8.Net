@@ -1,7 +1,7 @@
 ﻿## Medi8.Net
 
 Medi8.Net is a simple yet fast mediator implementation in .NET 7.
-It makes it easy to design your application accordings to CQRS principles and slice your solution into vertical and feature-based parts.
+It makes it easy to design your application according to CQRS principles and slice your solution into vertical and feature-based parts.
 
 Medi8.Net is Apache 2.0 licensed.
 
@@ -13,7 +13,7 @@ Using .NET CLI
 dotnet add package Medi8.Net --version 1.0.0
 ```
 
-Using package manager console
+Using the package manager console
 ```bash
 NuGet\Install-Package Medi8.Net -Version 1.0.0
 ```
@@ -21,14 +21,14 @@ NuGet\Install-Package Medi8.Net -Version 1.0.0
 #### Step 2 - Adding the necessary infrastructure in your `Program.cs`
 
 ```csharp
-builder.Services.AddMediator(cfg =>
+serviceCollection.AddMediator(cfg =>
 {
     cfg.AddHandler<MyQuery, MyQueryHandler>();
     cfg.AddHandler<MyCommand, MyCommandHandler>();
 });
 ```
 
-#### Step 3 - Using mediator in your code, e.g., controllers
+#### Step 3 - Using Medi8.Net in your code, e.g., controllers
 
 After injecting `IMediator` into your business logic, you are ready to go:
 ```csharp
@@ -58,17 +58,17 @@ public record MyQuery(string Name) : IQuery<MyResult?>
 ```
 
 ### Advanced scenarios
-Medi8.Net supports full pipeline processing for pre and post processing of a request.
-You can implement custom filters using `IPreProcessor` and `IPostProcessor` and adding them to your
+Medi8.Net supports full pipeline processing for pre- and post-processing of a request.
+You can implement custom filters using `IPreProcessor` and `IPostProcessor` and add them to your
 code as follows:
 
 ```csharp
 serviceCollection.AddMediator(
-    config =>
+    cfg =>
     {
         cfg.AddHandler<MyQuery, MyQueryHandler>();
-        config.AddToPipeline(_ => new MyPreFilter());
-        config.AddToPipeline(_ => new MyPostFilter());
+        cfg.AddToPipeline(_ => new MyPreFilter());
+        cfg.AddToPipeline(_ => new MyPostFilter());
     });
 ```
 
@@ -87,7 +87,7 @@ private class PreFilter : IPreProcessor
 }
 ```
 
-Intercepting the pipeline through filters is recommended to be done with using status codes and adding errors to the context:
+Intercepting the pipeline through filters is recommended to be done using status codes and adding errors to the context:
 ```csharp
 private class PreFilter : IPreProcessor
 {
@@ -108,4 +108,4 @@ private class PreFilter : IPreProcessor
 
 ### Contribution
 
-Feel free to raise issues, discussions in this repository for bugs, feature requests.
+Feel free to raise issues and discussions in this repository for bugs and feature requests.
