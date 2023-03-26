@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <PackageId>Mediator</PackageId>
+        <PackageId>Medi8.Net</PackageId>
         <Authors>FoxDawg</Authors>
         <Description>Simple .NET mediator implementation.</Description>
         <PackageTags>net mediator cqrs</PackageTags>
