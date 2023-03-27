@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,8 +51,13 @@ public class ProcessingContext <TRequest> : ProcessingContext
         this.scope = scope;
     }
 
-    public TRequest Request { get; protected init; }
+    public TRequest Request { get; protected init; } = default!;
 
+    public object? GetService(Type type)
+    {
+        return this.scope.ServiceProvider.GetService(type);
+    }
+    
     public T GetRequiredService <T>()
         where T : notnull
     {

@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,7 +10,7 @@ internal class PipelineBuilder
 {
     private readonly MediatorConfiguration configuration;
 
-    public PipelineBuilder(MediatorConfiguration configuration, IServiceProvider provider)
+    public PipelineBuilder(MediatorConfiguration configuration)
     {
         this.configuration = configuration;
     }

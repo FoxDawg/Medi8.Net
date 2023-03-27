@@ -18,7 +18,11 @@ public sealed class QueryHandlerTests : IDisposable
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddMediator(
-            config => { config.AddHandler<GetEntityQuery, GetEntityQuery.GetEntityQueryHandler>(); });
+            config =>
+            {
+                config.AddHandler<GetEntityQuery, GetEntityQuery.GetEntityQueryHandler>();
+                config.AddValidator<GetEntityQuery, GetEntityQuery.GetEntityQueryValidator>();
+            });
         this.serviceProvider = serviceCollection.BuildServiceProvider();
     }
 

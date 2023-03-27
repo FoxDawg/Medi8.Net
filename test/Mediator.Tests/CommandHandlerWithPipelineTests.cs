@@ -23,6 +23,7 @@ public sealed class CommandHandlerWithPipelineTests
             config =>
             {
                 config.AddHandler<CreateEntityCommand, CreateEntityCommand.CreateEntityCommandHandler>();
+                config.AddValidator<CreateEntityCommand, CreateEntityCommand.CreateEntityCommandValidator>();
                 config.AddPostExecutionMiddleware<PostFilter>();
             });
         await using var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -119,6 +120,7 @@ public sealed class CommandHandlerWithPipelineTests
             if (!isAuthenticated)
             {
                 context.WriteTo(StatusCodes.Forbidden);
+                context.WriteTo(new ProcessingResult("Auth", "Not authenticated."));
                 return;
             }
 

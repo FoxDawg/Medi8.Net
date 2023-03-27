@@ -21,8 +21,10 @@ public sealed class CommandHandlerTests : IDisposable
             config =>
             {
                 config.AddHandler<CreateEntityCommand, CreateEntityCommand.CreateEntityCommandHandler>();
+                config.AddValidator<CreateEntityCommand,CreateEntityCommand.CreateEntityCommandValidator>();
                 config.AddHandler<ThrowExceptionCommand, ThrowExceptionCommand.ThrowExceptionCommandHandler>();
                 config.AddHandler<DoWithoutResultCommand, DoWithoutResultCommand.DoWithoutResultCommandHandler>();
+                config.AddValidator<DoWithoutResultCommand, DoWithoutResultCommand.DoWithoutCommandValidator>();
             });
         this.serviceProvider = serviceCollection.BuildServiceProvider();
     }

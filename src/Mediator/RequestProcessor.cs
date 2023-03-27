@@ -35,9 +35,8 @@ internal sealed class RequestProcessor : IMediator
 
         await this.ExecutePreProcessorsAsync(context).ConfigureAwait(false);
 
-        if (context.StatusCode != StatusCodes.Ok)
+        if (!context.IsValid)
         {
-            context.WriteTo(new[] { new ProcessingResult("Pipeline", $"Filter pipeline failed returned {context.StatusCode}") });
             return context.ToRequestResult();
         }
 
@@ -59,9 +58,8 @@ internal sealed class RequestProcessor : IMediator
 
         await this.ExecutePreProcessorsAsync(context).ConfigureAwait(false);
 
-        if (context.StatusCode != StatusCodes.Ok)
+        if (!context.IsValid)
         {
-            context.WriteTo(new[] { new ProcessingResult("Pipeline", $"Filter pipeline failed returned {context.StatusCode}") });
             return context.ToRequestResult();
         }
 
@@ -80,13 +78,6 @@ internal sealed class RequestProcessor : IMediator
         where TCommand : ICommand<TResult>
         where TResult : class?
     {
-        await handler.ValidateAsync(context).ConfigureAwait(false);
-
-        if (!context.IsValid)
-        {
-            return context.ToRequestResult();
-        }
-
         var result = await handler.HandleAsync(context).ConfigureAwait(false);
         context.WriteTo(result);
         await this.ExecutePostProcessorsAsync(context).ConfigureAwait(false);
@@ -99,8 +90,6 @@ internal sealed class RequestProcessor : IMediator
         where TQuery : IQuery<TResult>
         where TResult : class?
     {
-        await handler.ValidateAsync(context).ConfigureAwait(false);
-
         if (!context.IsValid)
         {
             return context.ToRequestResult();

@@ -1,8 +1,6 @@
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Mediator.Contract;
-using Mediator.Handler;
 
 namespace Mediator.Tests.Queries;
 
@@ -15,19 +13,22 @@ public record GetEntityQuery(long Id) : IQuery<GetEntityQuery.Entity>
 
     public record Entity(long Id);
 
-    public class GetEntityQueryHandler : QueryHandlerBase<GetEntityQuery, Entity?>
+    public class GetEntityQueryValidator : IValidateRequest<GetEntityQuery>
     {
-        public override Task<ProcessingResults> ValidateAsync(GetEntityQuery query, CancellationToken token)
+        public Task<ProcessingResults> ValidateAsync(ProcessingContext<GetEntityQuery> context)
         {
-            if (long.IsNegative(query.Id))
+            if (long.IsNegative(context.Request.Id))
             {
-                return Task.FromResult(new ProcessingResults(new[] { new ProcessingResult(nameof(GetEntityQuery.Id), "Entity ID must be greater 0") }));
+                return Task.FromResult(new ProcessingResults(new[] {new ProcessingResult(nameof(Id), "Entity ID must be greater 0") }));
             }
 
             return Task.FromResult(ProcessingResults.Empty);
         }
+    }
 
-        public override async Task<Entity?> HandleAsync(ProcessingContext<GetEntityQuery, Entity?> context)
+    public class GetEntityQueryHandler : IQueryHandler<GetEntityQuery, Entity?>
+    {
+        public async Task<Entity?> HandleAsync(ProcessingContext<GetEntityQuery, Entity?> context)
         {
             await Task.CompletedTask.ConfigureAwait(false);
             return context.Request.Id switch

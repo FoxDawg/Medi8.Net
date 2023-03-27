@@ -27,7 +27,7 @@ public class MediatorConfigurator
         return new MediatorConfiguration(this.handlers, this.preprocessors, this.postprocessors);
     }
 
-    public void AddHandler <TRequest, THandler>()
+    public void AddHandler<TRequest, THandler>()
         where THandler : class
     {
         if (this.handlers.Any(o => o.RequestType == typeof(TRequest)))
@@ -37,6 +37,12 @@ public class MediatorConfigurator
 
         this.serviceCollection.AddScoped<THandler>();
         this.handlers.Add(new HandlerMap(typeof(TRequest), typeof(THandler)));
+    }
+
+    public void AddValidator<TRequest, TValidator>()
+        where TValidator : class, IValidateRequest<TRequest>
+    {
+        this.serviceCollection.AddScoped<IValidateRequest<TRequest>, TValidator>();
     }
 
     public void AddPreExecutionMiddleware<TMiddleware>()
