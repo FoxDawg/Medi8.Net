@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,38 +9,36 @@ namespace Mediator.Setup;
 internal class PipelineBuilder
 {
     private readonly MediatorConfiguration configuration;
-    private readonly IServiceProvider provider;
 
-    public PipelineBuilder(MediatorConfiguration configuration, IServiceProvider provider)
+    public PipelineBuilder(MediatorConfiguration configuration)
     {
         this.configuration = configuration;
-        this.provider = provider;
     }
 
-    internal NextFilter BuildPreProcessorPipeline()
+    internal Next<TRequest> BuildPreProcessorPipeline<TRequest>()
     {
         var filterFactories = this.configuration.Preprocessors;
-        return this.BuildPipeline(filterFactories);
+        return this.BuildPipeline<TRequest>(filterFactories);
     }
 
-    internal NextFilter BuildPostProcessorPipeline()
+    internal Next<TRequest> BuildPostProcessorPipeline<TRequest>()
     {
         var filterFactories = this.configuration.Postprocessors;
-        return this.BuildPipeline(filterFactories);
+        return this.BuildPipeline<TRequest>(filterFactories);
     }
 
-    private NextFilter BuildPipeline(IList<Func<IServiceProvider, IProcessor>> filterFactories)
+    private Next<TRequest> BuildPipeline<TRequest>(IList<IProcessor> filters)
     {
-        if (!filterFactories.Any())
+        if (!filters.Any())
         {
             return _ => Task.CompletedTask;
         }
 
-        var pipeline = new NextFilter[filterFactories.Count];
-        for (var i = filterFactories.Count - 1; i >= 0; i--)
+        var pipeline = new Next<TRequest>[filters.Count];
+        for (var i = filters.Count - 1; i >= 0; i--)
         {
-            var filter = filterFactories[i](this.provider);
-            if (i == filterFactories.Count - 1)
+            var filter = filters[i];
+            if (i == filters.Count - 1)
             {
                 pipeline[i] = ctx => filter.InvokeAsync(ctx, _ => Task.CompletedTask);
             }
@@ -52,7 +49,7 @@ internal class PipelineBuilder
             }
         }
 
-        NextFilter begin = ctx => pipeline[0].Invoke(ctx);
+        Next<TRequest> begin = ctx => pipeline[0].Invoke(ctx);
         return begin;
     }
 }

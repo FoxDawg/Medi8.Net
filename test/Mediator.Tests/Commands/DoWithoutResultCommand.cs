@@ -1,29 +1,30 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Mediator.Contract;
-using Mediator.Handler;
 
 namespace Mediator.Tests.Commands;
 
-public record DoWithoutResultCommand(string Parameter) : ICommand<EmptyResult>
+public record DoWithoutResultCommand(string Parameter) : ICommand<NoResult>
 {
-    public class DoWithoutResultCommandHandler : CommandHandlerBase<DoWithoutResultCommand, EmptyResult>
+    public class DoWithoutCommandValidator : IValidateRequest<DoWithoutResultCommand>
     {
-        public override Task<ProcessingResults> ValidateAsync(DoWithoutResultCommand command, CancellationToken token)
+        public Task<Errors> ValidateAsync(ProcessingContext<DoWithoutResultCommand> context)
         {
-            if (command.Parameter.Contains("invalid", StringComparison.OrdinalIgnoreCase))
+            if (context.Request.Parameter.Contains("invalid", StringComparison.OrdinalIgnoreCase))
             {
-                return Task.FromResult(new ProcessingResults(new List<ProcessingResult> { new (nameof(DoWithoutResultCommand.Parameter), "Invalid operation") }));
+                return Task.FromResult(new Errors(new List<Error> { new(nameof(Parameter), "Invalid operation") }));
             }
 
-            return Task.FromResult(ProcessingResults.Empty);
+            return Task.FromResult(Errors.Empty);
         }
+    }
 
-        public override Task<EmptyResult> HandleAsync(ProcessingContext<DoWithoutResultCommand, EmptyResult> context)
+    public class DoWithoutResultCommandHandler : ICommandHandler<DoWithoutResultCommand, NoResult>
+    {
+        public Task<NoResult> HandleAsync(ProcessingContext<DoWithoutResultCommand, NoResult> context)
         {
-            return Task.FromResult(EmptyResult.Create);
+            return Task.FromResult(NoResult.Create);
         }
     }
 }

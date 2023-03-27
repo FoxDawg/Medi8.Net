@@ -21,8 +21,8 @@ public class ProcessingContextTests
             config =>
             {
                 config.AddHandler<CreateEntityCommand, CreateEntityCommand.CreateEntityCommandHandler>();
-                config.AddToPipeline(_ => new PreFilter());
-                config.AddToPipeline(_ => new PostFilter());
+                config.AddPreExecutionMiddleware<PreFilter>();
+                config.AddPostExecutionMiddleware<PostFilter>();
             });
         await using var serviceProvider = serviceCollection.BuildServiceProvider();
         var mediator = serviceProvider.GetRequiredService<IMediator>();
@@ -33,29 +33,29 @@ public class ProcessingContextTests
 
         // Assert
         result.IsSuccessful.Should().BeTrue();
-        result.StatusCode.Should().Be(StatusCode.Ok);
+        result.StatusCode.Should().Be(StatusCodes.Ok);
     }
 
     private class PreFilter : IPreProcessor
     {
-        public async Task InvokeAsync(ProcessingContext context, NextFilter nextFilter)
+        public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
         {
             context.TryAddPayload("MyKey", 42);
-            await nextFilter(context);
+            await next(context);
         }
     }
 
     private class PostFilter : IPostProcessor
     {
-        public async Task InvokeAsync(ProcessingContext context, NextFilter nextFilter)
+        public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
         {
             if (context.TryGetPayload("MyKey") is 42)
             {
-                await nextFilter(context);
+                await next(context);
             }
             else
             {
-                context.WriteTo(StatusCode.InternalError);
+                context.WriteTo(StatusCodes.PipelineFailed);
             }
         }
     }

@@ -18,11 +18,13 @@ public sealed class CommandHandlerWithPipelineTests
     {
         // Arrange
         var serviceCollection = new ServiceCollection();
+        serviceCollection.AddScoped<Func<bool>>(_ => () => true);
         serviceCollection.AddMediator(
             config =>
             {
                 config.AddHandler<CreateEntityCommand, CreateEntityCommand.CreateEntityCommandHandler>();
-                config.AddToPipeline(_ => new PostFilter(StatusCode.InternalError));
+                config.AddValidator<CreateEntityCommand, CreateEntityCommand.CreateEntityCommandValidator>();
+                config.AddPostExecutionMiddleware<PostFilter>();
             });
         await using var serviceProvider = serviceCollection.BuildServiceProvider();
         var mediator = serviceProvider.GetRequiredService<IMediator>();
@@ -33,7 +35,7 @@ public sealed class CommandHandlerWithPipelineTests
 
         // Assert
         result.IsSuccessful.Should().BeFalse();
-        result.StatusCode.Should().Be(StatusCode.InternalError);
+        result.StatusCode.Should().Be(StatusCodes.PipelineFailed);
         result.Result.Should().BeNull();
     }
 
@@ -42,11 +44,12 @@ public sealed class CommandHandlerWithPipelineTests
     {
         // Arrange
         var serviceCollection = new ServiceCollection();
+        serviceCollection.AddScoped<Func<bool>>(_ => () => true);
         serviceCollection.AddMediator(
             config =>
             {
                 config.AddHandler<CreateEntityCommand, CreateEntityCommand.CreateEntityCommandHandler>();
-                config.AddToPipeline(_ => new AuthenticationFilter(true));
+                config.AddPreExecutionMiddleware<AuthenticationFilter>();
             });
         await using var serviceProvider = serviceCollection.BuildServiceProvider();
         var mediator = serviceProvider.GetRequiredService<IMediator>();
@@ -57,7 +60,7 @@ public sealed class CommandHandlerWithPipelineTests
 
         // Assert
         result.IsSuccessful.Should().BeTrue();
-        result.StatusCode.Should().Be(StatusCode.Ok);
+        result.StatusCode.Should().Be(StatusCodes.Ok);
         result.Result.Should().BeOfType<CreateEntityCommand.EntityCreated>();
         result.Result.As<CreateEntityCommand.EntityCreated>().Should().NotBeNull();
     }
@@ -67,11 +70,12 @@ public sealed class CommandHandlerWithPipelineTests
     {
         // Arrange
         var serviceCollection = new ServiceCollection();
+        serviceCollection.AddScoped<Func<bool>>(_ => () => false);
         serviceCollection.AddMediator(
             config =>
             {
                 config.AddHandler<CreateEntityCommand, CreateEntityCommand.CreateEntityCommandHandler>();
-                config.AddToPipeline(_ => new AuthenticationFilter(false));
+                config.AddPreExecutionMiddleware<AuthenticationFilter>();
             });
         await using var serviceProvider = serviceCollection.BuildServiceProvider();
         var mediator = serviceProvider.GetRequiredService<IMediator>();
@@ -82,8 +86,8 @@ public sealed class CommandHandlerWithPipelineTests
 
         // Assert
         result.IsSuccessful.Should().BeFalse();
-        result.StatusCode.Should().Be(StatusCode.Forbidden);
-        result.ProcessingResults.Should().ContainSingle();
+        result.StatusCode.Should().Be(StatusCodes.Forbidden);
+        result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -91,11 +95,12 @@ public sealed class CommandHandlerWithPipelineTests
     {
         // Arrange
         var serviceCollection = new ServiceCollection();
+        serviceCollection.AddScoped<Func<bool>>(_ => () => true);
         serviceCollection.AddMediator(
             config =>
             {
                 config.AddHandler<ThrowExceptionCommand, ThrowExceptionCommand.ThrowExceptionCommandHandler>();
-                config.AddToPipeline(_ => new AuthenticationFilter(true));
+                config.AddPreExecutionMiddleware<AuthenticationFilter>();
             });
         await using var serviceProvider = serviceCollection.BuildServiceProvider();
         var mediator = serviceProvider.GetRequiredService<IMediator>();
@@ -109,37 +114,25 @@ public sealed class CommandHandlerWithPipelineTests
 
     private class AuthenticationFilter : IPreProcessor
     {
-        private readonly bool isAuthenticated;
-
-        public AuthenticationFilter(bool isAuthenticated)
+        public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
         {
-            this.isAuthenticated = isAuthenticated;
-        }
-
-        public async Task InvokeAsync(ProcessingContext context, NextFilter nextFilter)
-        {
-            if (!this.isAuthenticated)
+            var isAuthenticated = context.GetRequiredService<Func<bool>>()();
+            if (!isAuthenticated)
             {
-                context.WriteTo(StatusCode.Forbidden);
+                context.WriteTo(StatusCodes.Forbidden);
+                context.WriteTo(new Error("Auth", "Not authenticated."));
                 return;
             }
 
-            await nextFilter(context);
+            await next(context);
         }
     }
 
     private class PostFilter : IPostProcessor
     {
-        private readonly StatusCode status;
-
-        public PostFilter(StatusCode status)
+        public Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
         {
-            this.status = status;
-        }
-
-        public Task InvokeAsync(ProcessingContext context, NextFilter nextFilter)
-        {
-            context.WriteTo(this.status);
+            context.WriteTo(StatusCodes.PipelineFailed);
             return Task.CompletedTask;
         }
     }

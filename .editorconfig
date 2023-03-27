@@ -5,8 +5,10 @@ dotnet_diagnostic.SA1200.severity = none
 # Braces.
 [*.cs]
 dotnet_diagnostic.SA1012.severity = suggestion
+
 [*.cs]
 dotnet_diagnostic.SA1009.severity = none
+
 [*.cs]
 dotnet_diagnostic.SA1014.severity = none
 
@@ -57,6 +59,10 @@ dotnet_diagnostic.CA1707.severity = none
 # Do not nest public types
 [*.cs]
 dotnet_diagnostic.CA1034.severity = none
+
+# Rename reserved keywords to avoid conflicts
+[*.cs]
+dotnet_diagnostic.CA1716.severity = none
 
 # Can be static
 [*.cs]

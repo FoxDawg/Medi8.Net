@@ -1,15 +1,14 @@
 using System;
 using System.Threading.Tasks;
 using Mediator.Contract;
-using Mediator.Handler;
 
 namespace Mediator.Tests.Commands;
 
-public record ThrowExceptionCommand : ICommand<EmptyResult>
+public record ThrowExceptionCommand : ICommand<NoResult>
 {
-    public class ThrowExceptionCommandHandler : CommandHandlerBase<ThrowExceptionCommand, EmptyResult>
+    public class ThrowExceptionCommandHandler : ICommandHandler<ThrowExceptionCommand, NoResult>
     {
-        public override Task<EmptyResult> HandleAsync(ProcessingContext<ThrowExceptionCommand, EmptyResult> context)
+        public Task<NoResult> HandleAsync(ProcessingContext<ThrowExceptionCommand, NoResult> context)
         {
             throw new ArithmeticException("This was intended!");
         }

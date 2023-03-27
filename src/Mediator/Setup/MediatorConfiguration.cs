@@ -8,18 +8,18 @@ namespace Mediator.Setup;
 internal class MediatorConfiguration
 {
     private readonly HashSet<HandlerMap> handlers;
-    private readonly List<Func<IServiceProvider, IProcessor>> preProcessors;
-    private readonly List<Func<IServiceProvider, IProcessor>> postProcessors;
+    private readonly List<IProcessor> postProcessors;
+    private readonly List<IProcessor> preProcessors;
 
-    public MediatorConfiguration(HashSet<HandlerMap> handlers, List<Func<IServiceProvider, IProcessor>> preProcessors, List<Func<IServiceProvider, IProcessor>> postProcessors)
+    public MediatorConfiguration(HashSet<HandlerMap> handlers, List<IProcessor> preProcessors, List<IProcessor> postProcessors)
     {
         this.handlers = handlers;
         this.preProcessors = preProcessors;
         this.postProcessors = postProcessors;
     }
 
-    public IList<Func<IServiceProvider, IProcessor>> Preprocessors => this.preProcessors;
-    public IList<Func<IServiceProvider, IProcessor>> Postprocessors => this.postProcessors;
+    public IList<IProcessor> Preprocessors => this.preProcessors;
+    public IList<IProcessor> Postprocessors => this.postProcessors;
 
     public Type GetHandler<TRequest>()
     {

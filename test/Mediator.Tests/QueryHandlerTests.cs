@@ -18,7 +18,11 @@ public sealed class QueryHandlerTests : IDisposable
     {
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddMediator(
-            config => { config.AddHandler<GetEntityQuery, GetEntityQuery.GetEntityQueryHandler>(); });
+            config =>
+            {
+                config.AddHandler<GetEntityQuery, GetEntityQuery.GetEntityQueryHandler>();
+                config.AddValidator<GetEntityQuery, GetEntityQuery.GetEntityQueryValidator>();
+            });
         this.serviceProvider = serviceCollection.BuildServiceProvider();
     }
 
@@ -39,7 +43,7 @@ public sealed class QueryHandlerTests : IDisposable
 
         // Assert
         result.IsSuccessful.Should().BeTrue();
-        result.StatusCode.Should().Be(StatusCode.Ok);
+        result.StatusCode.Should().Be(StatusCodes.Ok);
         result.Result.Should().BeOfType<GetEntityQuery.Entity>();
         result.Result.As<GetEntityQuery.Entity>().Should().NotBeNull();
         result.Result.As<GetEntityQuery.Entity>().Id.Should().Be(query.Id);
@@ -57,7 +61,7 @@ public sealed class QueryHandlerTests : IDisposable
 
         // Assert
         result.IsSuccessful.Should().BeTrue();
-        result.StatusCode.Should().Be(StatusCode.Ok);
+        result.StatusCode.Should().Be(StatusCodes.Ok);
         result.Result.Should().BeNull();
     }
 
@@ -73,9 +77,9 @@ public sealed class QueryHandlerTests : IDisposable
 
         // Assert
         result.IsSuccessful.Should().BeFalse();
-        result.StatusCode.Should().Be(StatusCode.BadRequest);
+        result.StatusCode.Should().Be(StatusCodes.ValidationFailed);
         result.Result.Should().BeNull();
-        result.ProcessingResults.Should().ContainSingle();
+        result.Errors.Should().ContainSingle();
     }
 
     [Fact]

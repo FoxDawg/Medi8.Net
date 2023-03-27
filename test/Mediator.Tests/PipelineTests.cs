@@ -3,6 +3,7 @@ using FluentAssertions;
 using Mediator.Contract;
 using Mediator.Pipeline;
 using Mediator.Setup;
+using Mediator.Tests.Commands;
 using Microsoft.Extensions.DependencyInjection;
 using Xunit;
 
@@ -15,23 +16,24 @@ public sealed class PipelineTests
     {
         // Arrange
         var serviceCollection = new ServiceCollection();
+        serviceCollection.AddSingleton<StatusCodeProvider>();
         serviceCollection.AddMediator(
             config =>
             {
-                config.AddToPipeline(_ => new PreFilter(StatusCode.Unauthorized));
-                config.AddToPipeline(_ => new PreFilter(StatusCode.BadRequest));
-                config.AddToPipeline(_ => new PreFilter(StatusCode.InternalError));
+                config.AddPreExecutionMiddleware<PreFilter>();
+                config.AddPreExecutionMiddleware<PreFilter>();
             });
         await using var serviceProvider = serviceCollection.BuildServiceProvider();
         var pipelineBuilder = serviceProvider.GetRequiredService<PipelineBuilder>();
-        var pipelineStart = pipelineBuilder.BuildPreProcessorPipeline();
-        var context = new ProcessingContext();
+        var pipelineStart = pipelineBuilder.BuildPreProcessorPipeline<DoWithoutResultCommand>();
+        using var scope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+        var context = new ProcessingContext<DoWithoutResultCommand>(scope);
 
         // Act
         await pipelineStart.Invoke(context);
 
         // Assert
-        context.StatusCode.Should().Be(StatusCode.InternalError);
+        context.StatusCode.Should().Be(2);
     }
 
     [Fact]
@@ -39,22 +41,24 @@ public sealed class PipelineTests
     {
         // Arrange
         var serviceCollection = new ServiceCollection();
+        serviceCollection.AddSingleton<StatusCodeProvider>();
         serviceCollection.AddMediator(
             config =>
             {
-                config.AddToPipeline(_ => new PostFilter(StatusCode.BadRequest));
-                config.AddToPipeline(_ => new PostFilter(StatusCode.Unauthorized));
+                config.AddPostExecutionMiddleware<PostFilter>();
+                config.AddPostExecutionMiddleware<PostFilter>();
             });
         await using var serviceProvider = serviceCollection.BuildServiceProvider();
         var pipelineBuilder = serviceProvider.GetRequiredService<PipelineBuilder>();
-        var pipelineStart = pipelineBuilder.BuildPostProcessorPipeline();
-        var context = new ProcessingContext();
+        var pipelineStart = pipelineBuilder.BuildPostProcessorPipeline<DoWithoutResultCommand>();
+        using var scope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+        var context = new ProcessingContext<DoWithoutResultCommand>(scope);
 
         // Act
         await pipelineStart.Invoke(context);
 
         // Assert
-        context.StatusCode.Should().Be(StatusCode.Unauthorized);
+        context.StatusCode.Should().Be(2);
     }
 
     [Fact]
@@ -65,45 +69,44 @@ public sealed class PipelineTests
         serviceCollection.AddMediator();
         await using var serviceProvider = serviceCollection.BuildServiceProvider();
         var pipelineBuilder = serviceProvider.GetRequiredService<PipelineBuilder>();
-        var pipelineStart = pipelineBuilder.BuildPreProcessorPipeline();
-        var context = new ProcessingContext();
+        var pipelineStart = pipelineBuilder.BuildPreProcessorPipeline<DoWithoutResultCommand>();
+        using var scope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+        var context = new ProcessingContext<DoWithoutResultCommand>(scope);
 
         // Act
         await pipelineStart.Invoke(context);
 
         // Assert
-        context.StatusCode.Should().Be(StatusCode.Ok);
+        context.StatusCode.Should().Be(StatusCodes.Ok);
     }
 
     private class PreFilter : IPreProcessor
     {
-        private readonly StatusCode order;
-
-        public PreFilter(StatusCode order)
+        public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
         {
-            this.order = order;
-        }
-
-        public async Task InvokeAsync(ProcessingContext context, NextFilter nextFilter)
-        {
-            context.WriteTo(this.order);
-            await nextFilter(context);
+            var statusCode = context.GetRequiredService<StatusCodeProvider>().GetAndIncrement();
+            context.WriteTo(statusCode);
+            await next(context);
         }
     }
 
     private class PostFilter : IPostProcessor
     {
-        private readonly StatusCode order;
-
-        public PostFilter(StatusCode order)
+        public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
         {
-            this.order = order;
+            var statusCode = context.GetRequiredService<StatusCodeProvider>().GetAndIncrement();
+            context.WriteTo(statusCode);
+            await next(context);
         }
+    }
 
-        public async Task InvokeAsync(ProcessingContext context, NextFilter nextFilter)
+    private class StatusCodeProvider
+    {
+        public int StatusCode { get; private set; }
+
+        public int GetAndIncrement()
         {
-            context.WriteTo(this.order);
-            await nextFilter(context);
+            return ++this.StatusCode;
         }
     }
 }
