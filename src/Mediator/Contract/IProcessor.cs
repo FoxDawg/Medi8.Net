@@ -5,7 +5,7 @@ namespace Mediator.Contract;
 
 public interface IProcessor
 {
-    Task InvokeAsync(ProcessingContext context, NextFilter nextFilter);
+    Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next);
 }
 
 // Marker interface

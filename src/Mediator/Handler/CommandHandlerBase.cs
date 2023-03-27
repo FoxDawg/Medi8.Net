@@ -16,7 +16,7 @@ public abstract class CommandHandlerBase<TCommand, TResponse> : ICommandHandler<
         if (validationResults.Any())
         {
             context.WriteTo(validationResults);
-            context.WriteTo(StatusCode.BadRequest);
+            context.WriteTo(StatusCodes.ValidationFailed);
         }
     }
 

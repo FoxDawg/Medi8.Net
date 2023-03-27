@@ -30,11 +30,12 @@ internal sealed class RequestProcessor : IMediator
         where TCommand : ICommand<TResult>
         where TResult : class?
     {
-        var context = new ProcessingContext<TCommand, TResult>(command, token);
+        using var scope = this.provider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+        var context = new ProcessingContext<TCommand, TResult>(scope, command, token);
 
         await this.ExecutePreProcessorsAsync(context).ConfigureAwait(false);
 
-        if (context.StatusCode != StatusCode.Ok)
+        if (context.StatusCode != StatusCodes.Ok)
         {
             context.WriteTo(new[] { new ProcessingResult("Pipeline", $"Filter pipeline failed returned {context.StatusCode}") });
             return context.ToRequestResult();
@@ -53,11 +54,12 @@ internal sealed class RequestProcessor : IMediator
         where TQuery : IQuery<TResult>
         where TResult : class?
     {
-        var context = new ProcessingContext<TQuery, TResult>(query, token);
+        using var scope = this.provider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+        var context = new ProcessingContext<TQuery, TResult>(scope, query, token);
 
         await this.ExecutePreProcessorsAsync(context).ConfigureAwait(false);
 
-        if (context.StatusCode != StatusCode.Ok)
+        if (context.StatusCode != StatusCodes.Ok)
         {
             context.WriteTo(new[] { new ProcessingResult("Pipeline", $"Filter pipeline failed returned {context.StatusCode}") });
             return context.ToRequestResult();
@@ -110,15 +112,15 @@ internal sealed class RequestProcessor : IMediator
         return context.ToRequestResult();
     }
 
-    private async Task ExecutePreProcessorsAsync(ProcessingContext context)
+    private async Task ExecutePreProcessorsAsync<TRequest>(ProcessingContext<TRequest> context)
     {
-        var pipelineStart = this.pipelineBuilder.BuildPreProcessorPipeline();
+        var pipelineStart = this.pipelineBuilder.BuildPreProcessorPipeline<TRequest>();
         await pipelineStart.Invoke(context).ConfigureAwait(false);
     }
 
-    private async Task ExecutePostProcessorsAsync(ProcessingContext context)
+    private async Task ExecutePostProcessorsAsync<TRequest>(ProcessingContext<TRequest> context)
     {
-        var pipelineStart = this.pipelineBuilder.BuildPostProcessorPipeline();
+        var pipelineStart = this.pipelineBuilder.BuildPostProcessorPipeline<TRequest>();
         await pipelineStart.Invoke(context).ConfigureAwait(false);
     }
 }

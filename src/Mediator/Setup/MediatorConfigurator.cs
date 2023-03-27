@@ -9,8 +9,8 @@ namespace Mediator.Setup;
 public class MediatorConfigurator
 {
     private readonly HashSet<HandlerMap> handlers;
-    private readonly List<Func<IServiceProvider, IProcessor>> postprocessors;
-    private readonly List<Func<IServiceProvider, IProcessor>> preprocessors;
+    private readonly List<IProcessor> postprocessors;
+    private readonly List<IProcessor> preprocessors;
     private readonly IServiceCollection serviceCollection;
 
     public MediatorConfigurator(IServiceCollection serviceCollection)
@@ -18,8 +18,8 @@ public class MediatorConfigurator
         this.serviceCollection = serviceCollection;
 
         this.handlers = new HashSet<HandlerMap>();
-        this.preprocessors = new List<Func<IServiceProvider, IProcessor>>();
-        this.postprocessors = new List<Func<IServiceProvider, IProcessor>>();
+        this.preprocessors = new List<IProcessor>();
+        this.postprocessors = new List<IProcessor>();
     }
 
     internal MediatorConfiguration Build()
@@ -39,16 +39,16 @@ public class MediatorConfigurator
         this.handlers.Add(new HandlerMap(typeof(TRequest), typeof(THandler)));
     }
 
-    public void AddToPipeline(Func<IServiceProvider, IPreProcessor> factoryFunc)
+    public void AddPreExecutionMiddleware<TMiddleware>()
+        where TMiddleware : IPreProcessor, new()
     {
-        this.serviceCollection.AddScoped(factoryFunc);
-        this.preprocessors.Add(factoryFunc);
+        this.preprocessors.Add(new TMiddleware());
     }
 
-    public void AddToPipeline(Func<IServiceProvider, IPostProcessor> factoryFunc)
+    public void AddPostExecutionMiddleware<TMiddleware>()
+        where TMiddleware : IPostProcessor, new()
     {
-        this.serviceCollection.AddScoped(factoryFunc);
-        this.postprocessors.Add(factoryFunc);
+        this.postprocessors.Add(new TMiddleware());
     }
 }
 

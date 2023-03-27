@@ -16,7 +16,7 @@ public abstract class QueryHandlerBase<TQuery, TResponse> : IQueryHandler<TQuery
         if (validationResults.Any())
         {
             context.WriteTo(validationResults);
-            context.WriteTo(StatusCode.BadRequest);
+            context.WriteTo(StatusCodes.ValidationFailed);
         }
     }
 

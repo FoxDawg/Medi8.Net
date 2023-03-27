@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Mediator.Contract;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Mediator;
 
@@ -12,7 +13,7 @@ public class ProcessingContext
     private readonly List<ProcessingResult> processingResults = new();
     public bool IsValid => !this.processingResults.Any();
     protected ProcessingResults ProcessingResults => new(this.processingResults);
-    public StatusCode StatusCode { get; private set; } = StatusCode.Ok;
+    public int StatusCode { get; private set; } = StatusCodes.Ok;
 
     public bool TryAddPayload(string key, object payload)
     {
@@ -34,23 +35,41 @@ public class ProcessingContext
         return this.payloads.TryGetValue(key, out var payload) ? payload : null;
     }
 
-    public void WriteTo(StatusCode statusCode)
+    public void WriteTo(int statusCode)
     {
         this.StatusCode = statusCode;
     }
 }
 
-public class ProcessingContext <TRequest, TResult> : ProcessingContext
+public class ProcessingContext <TRequest> : ProcessingContext
+{
+    private readonly IServiceScope scope;
+
+    public ProcessingContext(IServiceScope scope)
+    {
+        this.scope = scope;
+    }
+
+    public TRequest Request { get; protected init; }
+
+    public T GetRequiredService <T>()
+        where T : notnull
+    {
+        return this.scope.ServiceProvider.GetRequiredService<T>();
+    }
+}
+
+public class ProcessingContext <TRequest, TResult> : ProcessingContext<TRequest>
     where TRequest : IRequest
     where TResult : class?
 {
-    internal ProcessingContext(TRequest request, CancellationToken token)
+    internal ProcessingContext(IServiceScope scope, TRequest request, CancellationToken token)
+        : base(scope)
     {
         this.Request = request;
         this.Token = token;
     }
 
-    public TRequest Request { get; }
     internal TResult Result { get; private set; } = default!;
 
     public CancellationToken Token { get; }
@@ -62,7 +81,7 @@ public class ProcessingContext <TRequest, TResult> : ProcessingContext
 
     internal RequestResult<TResult> ToRequestResult()
     {
-        if (this.StatusCode != StatusCode.Ok || !this.IsValid)
+        if (this.StatusCode != StatusCodes.Ok || !this.IsValid)
         {
             return new RequestResult<TResult>(this.ProcessingResults, this.StatusCode);
         }

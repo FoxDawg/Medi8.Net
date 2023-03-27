@@ -25,11 +25,11 @@ public class ProductsController : Controller
 
         switch (result.StatusCode)
         {
-            case Mediator.Contract.StatusCode.Ok when result.Result is null:
+            case StatusCodes.Ok when result.Result is null:
                 return this.NoContent();
-            case Mediator.Contract.StatusCode.Ok:
+            case StatusCodes.Ok:
                 return new OkObjectResult(result.Result);
-            case Mediator.Contract.StatusCode.BadRequest:
+            case StatusCodes.ValidationFailed:
                 return new BadRequestObjectResult(result.ProcessingResults.ToModelStateDictionary());
             default:
                 throw new InvalidOperationException("Case not handled.");
@@ -43,9 +43,9 @@ public class ProductsController : Controller
 
         switch (result.StatusCode)
         {
-            case Mediator.Contract.StatusCode.Ok:
+            case StatusCodes.Ok:
                 return new OkObjectResult(result.Result);
-            case Mediator.Contract.StatusCode.BadRequest:
+            case StatusCodes.ValidationFailed:
                 return new BadRequestObjectResult(result.ProcessingResults.ToModelStateDictionary());
             default:
                 throw new InvalidOperationException("Case not handled.");

@@ -44,7 +44,7 @@ public sealed class CommandHandlerTests : IDisposable
 
         // Assert
         result.IsSuccessful.Should().BeTrue();
-        result.StatusCode.Should().Be(StatusCode.Ok);
+        result.StatusCode.Should().Be(StatusCodes.Ok);
         result.Result.Should().BeOfType<EmptyResult>();
         result.Result.As<EmptyResult>().Should().NotBeNull();
     }
@@ -61,7 +61,7 @@ public sealed class CommandHandlerTests : IDisposable
 
         // Assert
         result.IsSuccessful.Should().BeTrue();
-        result.StatusCode.Should().Be(StatusCode.Ok);
+        result.StatusCode.Should().Be(StatusCodes.Ok);
         result.Result.Should().BeOfType<CreateEntityCommand.EntityCreated>();
         result.Result.As<CreateEntityCommand.EntityCreated>().Should().NotBeNull();
     }
@@ -78,7 +78,7 @@ public sealed class CommandHandlerTests : IDisposable
 
         // Assert
         result.IsSuccessful.Should().BeFalse();
-        result.StatusCode.Should().Be(StatusCode.BadRequest);
+        result.StatusCode.Should().Be(StatusCodes.ValidationFailed);
         result.Result.Should().BeNull();
         result.ProcessingResults.Should().ContainSingle();
     }
@@ -95,7 +95,7 @@ public sealed class CommandHandlerTests : IDisposable
 
         // Assert
         result.IsSuccessful.Should().BeFalse();
-        result.StatusCode.Should().Be(StatusCode.BadRequest);
+        result.StatusCode.Should().Be(StatusCodes.ValidationFailed);
         result.Result.Should().BeNull();
         result.ProcessingResults.Should().ContainSingle();
     }
