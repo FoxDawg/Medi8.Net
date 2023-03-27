@@ -11,6 +11,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IMediator, RequestProcessor>();
         services.AddScoped<PipelineBuilder>();
+        services.AddSingleton<PipelineCache>();
 
         var configurator = new MediatorConfigurator(services);
         configure?.Invoke(configurator);

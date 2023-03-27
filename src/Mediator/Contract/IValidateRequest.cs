@@ -4,5 +4,5 @@ namespace Mediator.Contract;
 
 public interface IValidateRequest<TRequest>
 {
-    Task<ProcessingResults> ValidateAsync(ProcessingContext<TRequest> context);
+    Task<Errors> ValidateAsync(ProcessingContext<TRequest> context);
 }

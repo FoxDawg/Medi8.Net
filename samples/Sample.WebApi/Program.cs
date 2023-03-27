@@ -11,6 +11,8 @@ builder.Services.AddMediator(cfg =>
 {
     cfg.AddHandler<FindProductByIdQuery, FindProductByIdQuery.FindProductByIdQueryHandler>();
     cfg.AddHandler<AddProductCommand, AddProductCommand.AddProductCommandHandler>();
+    cfg.AddValidator<AddProductCommand, AddProductCommand.AddProductValidator>();
+    cfg.AddValidator<FindProductByIdQuery, FindProductByIdQuery.FindProductByIdQueryValidator>();
 });
 
 var app = builder.Build();

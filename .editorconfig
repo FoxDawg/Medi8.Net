@@ -5,8 +5,10 @@ dotnet_diagnostic.SA1200.severity = none
 # Braces.
 [*.cs]
 dotnet_diagnostic.SA1012.severity = suggestion
+
 [*.cs]
 dotnet_diagnostic.SA1009.severity = none
+
 [*.cs]
 dotnet_diagnostic.SA1014.severity = none
 

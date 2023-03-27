@@ -42,13 +42,8 @@ Any exceptions during the handling of the query will be directly propagated back
 ```csharp
 public record MyQuery(string Name) : IQuery<MyResult?>
 {
-    public class MyQueryHandler : QueryHandlerBase<MyQuery, MyResult?>
+    public class MyQueryHandler : IQueryHandler<MyQuery, MyResult?>
     {
-        public override Task<ValidationResults> ValidateAsync(MyQuery command, CancellationToken token)
-        {
-            // do your validation here. Optional.
-        }
-
         public override Task<MyResult?> HandleAsync(ProcessingContext<MyQuery, MyResult?> context)
         {
             // perform the actual handling of the query and return the result
@@ -58,6 +53,34 @@ public record MyQuery(string Name) : IQuery<MyResult?>
 ```
 
 ### Advanced scenarios
+
+
+#### Validation
+Validation in Medi8.Net is possible by implementing an interface `IValidateRequest<TRequest>` in a class.
+This interface will automatically be picked up by the middleware pipeline:
+```csharp
+builder.Services.AddMediator(cfg =>
+{
+    cfg.AddHandler<FindProductByIdQuery, FindProductByIdQuery.FindProductByIdQueryHandler>();
+    cfg.AddHandler<AddProductCommand, AddProductCommand.AddProductCommandHandler>();
+    cfg.AddValidator<AddProductCommand, AddProductCommand.AddProductValidator>();
+    cfg.AddValidator<FindProductByIdQuery, FindProductByIdQuery.FindProductByIdQueryValidator>();
+});
+```
+and an implementation
+```csharp
+public class FindProductByIdQueryValidator : IValidateRequest<FindProductByIdQuery>
+{
+    public Task<Errors> ValidateAsync(ProcessingContext<FindProductByIdQuery> context)
+    {
+        // do implementation here
+        // ...
+        return Task.FromResult(Errors.Empty);
+    }
+}
+```
+
+#### Middleware
 Medi8.Net supports full pipeline processing for pre- and post-processing of a request.
 You can implement custom filters using `IPreProcessor` and `IPostProcessor` and add them to your
 code as follows:
@@ -67,8 +90,8 @@ serviceCollection.AddMediator(
     cfg =>
     {
         cfg.AddHandler<MyQuery, MyQueryHandler>();
-        cfg.AddToPipeline(_ => new MyPreFilter());
-        cfg.AddToPipeline(_ => new MyPostFilter());
+        cfg.AddPreExecutionMiddleware<MyPreFilter>();
+        cfg.AddPostExecutionMiddleware<MyPreFilter>();
     });
 ```
 
@@ -79,10 +102,10 @@ you can access respective methods on the `ProcessingContext`:
 ```csharp
 public class PreFilter : IPreProcessor
 {
-    public async Task InvokeAsync(ProcessingContext context, NextFilter nextFilter)
+    public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
     {
         context.TryAddPayload("MyKey", 42);
-        await nextFilter(context);
+        await next(context);
     }
 }
 ```
@@ -91,21 +114,31 @@ Intercepting the pipeline through filters is recommended to be done using status
 ```csharp
 public class PreFilter : IPreProcessor
 {
-    public async Task InvokeAsync(ProcessingContext context, NextFilter nextFilter)
+    public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
     {
         if (somethingWentWrong)
         {
-            context.WriteTo(new ProcessingResult("MyFilter", "Failed because of reason..."));
+            context.WriteTo(new Errors("MyFilter", "Failed because of reason..."));
             context.WriteTo(StatusCode.PipelineFailed);
         }
         else
         {
-            await nextFilter(context);
+            await next(context);
         }
     }
 }
 ```
 
+If your filters need dependencies, this will not be possible through ctor injection. Instead, you can resolve your 
+dependencies from the scope provided by the context:
+```csharp
+public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
+{
+    var statusCode = context.GetRequiredService<StatusCodeProvider>().GetAndIncrement();
+    context.WriteTo(statusCode);
+    await next(context);
+}
+```
 ### Contribution
 
 Feel free to raise issues and discussions in this repository for bugs and feature requests.

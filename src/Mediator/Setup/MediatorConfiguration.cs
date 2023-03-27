@@ -8,8 +8,8 @@ namespace Mediator.Setup;
 internal class MediatorConfiguration
 {
     private readonly HashSet<HandlerMap> handlers;
-    private readonly List<IProcessor> preProcessors;
     private readonly List<IProcessor> postProcessors;
+    private readonly List<IProcessor> preProcessors;
 
     public MediatorConfiguration(HashSet<HandlerMap> handlers, List<IProcessor> preProcessors, List<IProcessor> postProcessors)
     {

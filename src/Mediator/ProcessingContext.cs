@@ -10,10 +10,10 @@ namespace Mediator;
 
 public class ProcessingContext
 {
+    private readonly List<Error> errors = new();
     private readonly ConcurrentDictionary<string, object> payloads = new();
-    private readonly List<ProcessingResult> processingResults = new();
-    public bool IsValid => !this.processingResults.Any();
-    protected ProcessingResults ProcessingResults => new(this.processingResults);
+    public bool IsValid => !this.errors.Any();
+    protected Errors Errors => new(this.errors);
     public int StatusCode { get; private set; } = StatusCodes.Ok;
 
     public bool TryAddPayload(string key, object payload)
@@ -21,14 +21,14 @@ public class ProcessingContext
         return this.payloads.TryAdd(key, payload);
     }
 
-    public void WriteTo(IEnumerable<ProcessingResult> results)
+    public void WriteTo(IEnumerable<Error> results)
     {
-        this.processingResults.AddRange(results);
+        this.errors.AddRange(results);
     }
 
-    public void WriteTo(ProcessingResult result)
+    public void WriteTo(Error result)
     {
-        this.processingResults.Add(result);
+        this.errors.Add(result);
     }
 
     public object? TryGetPayload(string key)
@@ -42,7 +42,7 @@ public class ProcessingContext
     }
 }
 
-public class ProcessingContext <TRequest> : ProcessingContext
+public class ProcessingContext<TRequest> : ProcessingContext
 {
     private readonly IServiceScope scope;
 
@@ -57,15 +57,15 @@ public class ProcessingContext <TRequest> : ProcessingContext
     {
         return this.scope.ServiceProvider.GetService(type);
     }
-    
-    public T GetRequiredService <T>()
+
+    public T GetRequiredService<T>()
         where T : notnull
     {
         return this.scope.ServiceProvider.GetRequiredService<T>();
     }
 }
 
-public class ProcessingContext <TRequest, TResult> : ProcessingContext<TRequest>
+public class ProcessingContext<TRequest, TResult> : ProcessingContext<TRequest>
     where TRequest : IRequest
     where TResult : class?
 {
@@ -89,7 +89,7 @@ public class ProcessingContext <TRequest, TResult> : ProcessingContext<TRequest>
     {
         if (this.StatusCode != StatusCodes.Ok || !this.IsValid)
         {
-            return new RequestResult<TResult>(this.ProcessingResults, this.StatusCode);
+            return new RequestResult<TResult>(this.Errors, this.StatusCode);
         }
 
         return new RequestResult<TResult>(this.Result, this.StatusCode);

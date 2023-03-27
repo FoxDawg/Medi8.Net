@@ -5,26 +5,26 @@ using Mediator.Contract;
 
 namespace Mediator.Tests.Commands;
 
-public record DoWithoutResultCommand(string Parameter) : ICommand<EmptyResult>
+public record DoWithoutResultCommand(string Parameter) : ICommand<NoResult>
 {
     public class DoWithoutCommandValidator : IValidateRequest<DoWithoutResultCommand>
     {
-        public Task<ProcessingResults> ValidateAsync(ProcessingContext<DoWithoutResultCommand> context)
+        public Task<Errors> ValidateAsync(ProcessingContext<DoWithoutResultCommand> context)
         {
             if (context.Request.Parameter.Contains("invalid", StringComparison.OrdinalIgnoreCase))
             {
-                return Task.FromResult(new ProcessingResults(new List<ProcessingResult> { new(nameof(Parameter), "Invalid operation") }));
+                return Task.FromResult(new Errors(new List<Error> { new(nameof(Parameter), "Invalid operation") }));
             }
 
-            return Task.FromResult(ProcessingResults.Empty);
+            return Task.FromResult(Errors.Empty);
         }
     }
 
-    public class DoWithoutResultCommandHandler : ICommandHandler<DoWithoutResultCommand, EmptyResult>
+    public class DoWithoutResultCommandHandler : ICommandHandler<DoWithoutResultCommand, NoResult>
     {
-        public Task<EmptyResult> HandleAsync(ProcessingContext<DoWithoutResultCommand, EmptyResult> context)
+        public Task<NoResult> HandleAsync(ProcessingContext<DoWithoutResultCommand, NoResult> context)
         {
-            return Task.FromResult(EmptyResult.Create);
+            return Task.FromResult(NoResult.Create);
         }
     }
 }

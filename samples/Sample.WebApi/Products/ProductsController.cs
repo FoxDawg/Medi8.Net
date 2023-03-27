@@ -30,7 +30,7 @@ public class ProductsController : Controller
             case StatusCodes.Ok:
                 return new OkObjectResult(result.Result);
             case StatusCodes.ValidationFailed:
-                return new BadRequestObjectResult(result.ProcessingResults.ToModelStateDictionary());
+                return new BadRequestObjectResult(result.Errors.ToModelStateDictionary());
             default:
                 throw new InvalidOperationException("Case not handled.");
         }
@@ -46,7 +46,7 @@ public class ProductsController : Controller
             case StatusCodes.Ok:
                 return new OkObjectResult(result.Result);
             case StatusCodes.ValidationFailed:
-                return new BadRequestObjectResult(result.ProcessingResults.ToModelStateDictionary());
+                return new BadRequestObjectResult(result.Errors.ToModelStateDictionary());
             default:
                 throw new InvalidOperationException("Case not handled.");
         }

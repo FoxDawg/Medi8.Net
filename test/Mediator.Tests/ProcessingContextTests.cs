@@ -38,7 +38,7 @@ public class ProcessingContextTests
 
     private class PreFilter : IPreProcessor
     {
-        public async Task InvokeAsync <TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
+        public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
         {
             context.TryAddPayload("MyKey", 42);
             await next(context);
@@ -47,7 +47,7 @@ public class ProcessingContextTests
 
     private class PostFilter : IPostProcessor
     {
-        public async Task InvokeAsync <TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
+        public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
         {
             if (context.TryGetPayload("MyKey") is 42)
             {

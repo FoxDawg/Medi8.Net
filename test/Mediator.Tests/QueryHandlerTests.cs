@@ -79,7 +79,7 @@ public sealed class QueryHandlerTests : IDisposable
         result.IsSuccessful.Should().BeFalse();
         result.StatusCode.Should().Be(StatusCodes.ValidationFailed);
         result.Result.Should().BeNull();
-        result.ProcessingResults.Should().ContainSingle();
+        result.Errors.Should().ContainSingle();
     }
 
     [Fact]

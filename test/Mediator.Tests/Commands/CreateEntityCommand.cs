@@ -7,18 +7,19 @@ namespace Mediator.Tests.Commands;
 
 public record CreateEntityCommand(string Name) : ICommand<CreateEntityCommand.EntityCreated>
 {
+    // ReSharper disable once NotAccessedPositionalProperty.Global
     public record EntityCreated(long Id);
 
     public class CreateEntityCommandValidator : IValidateRequest<CreateEntityCommand>
     {
-        public Task<ProcessingResults> ValidateAsync(ProcessingContext<CreateEntityCommand> context)
+        public Task<Errors> ValidateAsync(ProcessingContext<CreateEntityCommand> context)
         {
             if (context.Request.Name.Contains("invalid", StringComparison.OrdinalIgnoreCase))
             {
-                return Task.FromResult(new ProcessingResults(new List<ProcessingResult> { new(nameof(Name), "Cannot have name containing 'invalid'") }));
+                return Task.FromResult(new Errors(new List<Error> { new(nameof(Name), "Cannot have name containing 'invalid'") }));
             }
 
-            return Task.FromResult(ProcessingResults.Empty);
+            return Task.FromResult(Errors.Empty);
         }
     }
 

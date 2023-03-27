@@ -21,7 +21,7 @@ public sealed class CommandHandlerTests : IDisposable
             config =>
             {
                 config.AddHandler<CreateEntityCommand, CreateEntityCommand.CreateEntityCommandHandler>();
-                config.AddValidator<CreateEntityCommand,CreateEntityCommand.CreateEntityCommandValidator>();
+                config.AddValidator<CreateEntityCommand, CreateEntityCommand.CreateEntityCommandValidator>();
                 config.AddHandler<ThrowExceptionCommand, ThrowExceptionCommand.ThrowExceptionCommandHandler>();
                 config.AddHandler<DoWithoutResultCommand, DoWithoutResultCommand.DoWithoutResultCommandHandler>();
                 config.AddValidator<DoWithoutResultCommand, DoWithoutResultCommand.DoWithoutCommandValidator>();
@@ -47,8 +47,8 @@ public sealed class CommandHandlerTests : IDisposable
         // Assert
         result.IsSuccessful.Should().BeTrue();
         result.StatusCode.Should().Be(StatusCodes.Ok);
-        result.Result.Should().BeOfType<EmptyResult>();
-        result.Result.As<EmptyResult>().Should().NotBeNull();
+        result.Result.Should().BeOfType<NoResult>();
+        result.Result.As<NoResult>().Should().NotBeNull();
     }
 
     [Fact]
@@ -82,7 +82,7 @@ public sealed class CommandHandlerTests : IDisposable
         result.IsSuccessful.Should().BeFalse();
         result.StatusCode.Should().Be(StatusCodes.ValidationFailed);
         result.Result.Should().BeNull();
-        result.ProcessingResults.Should().ContainSingle();
+        result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -99,7 +99,7 @@ public sealed class CommandHandlerTests : IDisposable
         result.IsSuccessful.Should().BeFalse();
         result.StatusCode.Should().Be(StatusCodes.ValidationFailed);
         result.Result.Should().BeNull();
-        result.ProcessingResults.Should().ContainSingle();
+        result.Errors.Should().ContainSingle();
     }
 
     [Fact]

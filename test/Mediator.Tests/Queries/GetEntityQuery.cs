@@ -15,14 +15,14 @@ public record GetEntityQuery(long Id) : IQuery<GetEntityQuery.Entity>
 
     public class GetEntityQueryValidator : IValidateRequest<GetEntityQuery>
     {
-        public Task<ProcessingResults> ValidateAsync(ProcessingContext<GetEntityQuery> context)
+        public Task<Errors> ValidateAsync(ProcessingContext<GetEntityQuery> context)
         {
             if (long.IsNegative(context.Request.Id))
             {
-                return Task.FromResult(new ProcessingResults(new[] {new ProcessingResult(nameof(Id), "Entity ID must be greater 0") }));
+                return Task.FromResult(new Errors(new[] { new Error(nameof(Id), "Entity ID must be greater 0") }));
             }
 
-            return Task.FromResult(ProcessingResults.Empty);
+            return Task.FromResult(Errors.Empty);
         }
     }
 

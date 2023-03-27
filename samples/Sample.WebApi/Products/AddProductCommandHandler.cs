@@ -9,14 +9,14 @@ public record AddProductCommand(string Name) : ICommand<Product>
 {
     public class AddProductValidator : IValidateRequest<AddProductCommand>
     {
-        public Task<ProcessingResults> ValidateAsync(ProcessingContext<AddProductCommand> context)
+        public Task<Errors> ValidateAsync(ProcessingContext<AddProductCommand> context)
         {
             if (string.IsNullOrEmpty(context.Request.Name))
             {
-                return Task.FromResult(new ProcessingResults(new[] {new ProcessingResult($"{nameof(Name)}", "Must not be empty") }));
+                return Task.FromResult(new Errors(new[] { new Error($"{nameof(Name)}", "Must not be empty") }));
             }
 
-            return Task.FromResult(ProcessingResults.Empty);
+            return Task.FromResult(Errors.Empty);
         }
     }
 

@@ -9,14 +9,14 @@ public record FindProductByIdQuery(int Id) : IQuery<Product?>
 {
     public class FindProductByIdQueryValidator : IValidateRequest<FindProductByIdQuery>
     {
-        public Task<ProcessingResults> ValidateAsync(ProcessingContext<FindProductByIdQuery> context)
+        public Task<Errors> ValidateAsync(ProcessingContext<FindProductByIdQuery> context)
         {
             if (context.Request.Id < 0)
             {
-                return Task.FromResult(new ProcessingResults(new[] {new ProcessingResult($"{nameof(Id)}", "Must not be negative")}));
+                return Task.FromResult(new Errors(new[] { new Error($"{nameof(Id)}", "Must not be negative") }));
             }
 
-            return Task.FromResult(ProcessingResults.Empty);
+            return Task.FromResult(Errors.Empty);
         }
     }
 

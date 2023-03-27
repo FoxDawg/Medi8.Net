@@ -15,19 +15,19 @@ internal class PipelineBuilder
         this.configuration = configuration;
     }
 
-    internal Next<TRequest> BuildPreProcessorPipeline <TRequest>()
+    internal Next<TRequest> BuildPreProcessorPipeline<TRequest>()
     {
         var filterFactories = this.configuration.Preprocessors;
         return this.BuildPipeline<TRequest>(filterFactories);
     }
 
-    internal Next<TRequest> BuildPostProcessorPipeline <TRequest>()
+    internal Next<TRequest> BuildPostProcessorPipeline<TRequest>()
     {
         var filterFactories = this.configuration.Postprocessors;
         return this.BuildPipeline<TRequest>(filterFactories);
     }
 
-    private Next<TRequest> BuildPipeline <TRequest>(IList<IProcessor> filters)
+    private Next<TRequest> BuildPipeline<TRequest>(IList<IProcessor> filters)
     {
         if (!filters.Any())
         {

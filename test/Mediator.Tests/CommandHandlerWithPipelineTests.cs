@@ -87,7 +87,7 @@ public sealed class CommandHandlerWithPipelineTests
         // Assert
         result.IsSuccessful.Should().BeFalse();
         result.StatusCode.Should().Be(StatusCodes.Forbidden);
-        result.ProcessingResults.Should().ContainSingle();
+        result.Errors.Should().ContainSingle();
     }
 
     [Fact]
@@ -114,13 +114,13 @@ public sealed class CommandHandlerWithPipelineTests
 
     private class AuthenticationFilter : IPreProcessor
     {
-        public async Task InvokeAsync <TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
+        public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
         {
             var isAuthenticated = context.GetRequiredService<Func<bool>>()();
             if (!isAuthenticated)
             {
                 context.WriteTo(StatusCodes.Forbidden);
-                context.WriteTo(new ProcessingResult("Auth", "Not authenticated."));
+                context.WriteTo(new Error("Auth", "Not authenticated."));
                 return;
             }
 
@@ -130,7 +130,7 @@ public sealed class CommandHandlerWithPipelineTests
 
     private class PostFilter : IPostProcessor
     {
-        public Task InvokeAsync <TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
+        public Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
         {
             context.WriteTo(StatusCodes.PipelineFailed);
             return Task.CompletedTask;
