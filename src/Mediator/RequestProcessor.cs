@@ -46,10 +46,21 @@ internal sealed class RequestProcessor : IMediator
         var handler = this.provider.GetRequiredService(this.configuration.GetHandler<TCommand>());
         if (handler is ICommandHandler<TCommand, TResult> commandHandler)
         {
-            return await this.HandleCommandInternalAsync(commandHandler, context).ConfigureAwait(false);
+            await this.HandleCommandInternalAsync(commandHandler, context).ConfigureAwait(false);
+        }
+        else
+        {
+            throw new InvalidCastException($"Registered handler is not of type {typeof(ICommandHandler<TCommand, TResult>)}");
         }
 
-        throw new InvalidCastException($"Registered handler is not of type {typeof(ICommandHandler<TCommand, TResult>)}");
+        if (!context.IsValid)
+        {
+            return context.ToRequestResult();
+        }
+
+        await this.ExecutePostProcessorsAsync(context).ConfigureAwait(false);
+
+        return context.ToRequestResult();
     }
 
     public async Task<RequestResult<TResult>> HandleQueryAsync<TQuery, TResult>(TQuery query, CancellationToken token)
@@ -69,13 +80,24 @@ internal sealed class RequestProcessor : IMediator
         var handler = this.provider.GetRequiredService(this.configuration.GetHandler<TQuery>());
         if (handler is IQueryHandler<TQuery, TResult> queryHandler)
         {
-            return await this.HandleQueryInternalAsync(queryHandler, context).ConfigureAwait(false);
+            await this.HandleQueryInternalAsync(queryHandler, context).ConfigureAwait(false);
+        }
+        else
+        {
+            throw new InvalidCastException($"Registered handler is not of type {typeof(IQueryHandler<TQuery, TResult>)}");
         }
 
-        throw new InvalidCastException($"Registered handler is not of type {typeof(IQueryHandler<TQuery, TResult>)}");
+        if (!context.IsValid)
+        {
+            return context.ToRequestResult();
+        }
+
+        await this.ExecutePostProcessorsAsync(context).ConfigureAwait(false);
+
+        return context.ToRequestResult();
     }
 
-    private async Task<RequestResult<TResult>> HandleCommandInternalAsync<TCommand, TResult>(
+    private async Task HandleCommandInternalAsync<TCommand, TResult>(
         ICommandHandler<TCommand, TResult> handler,
         ProcessingContext<TCommand, TResult> context)
         where TCommand : ICommand<TResult>
@@ -83,25 +105,16 @@ internal sealed class RequestProcessor : IMediator
     {
         var result = await handler.HandleAsync(context).ConfigureAwait(false);
         context.WriteTo(result);
-        await this.ExecutePostProcessorsAsync(context).ConfigureAwait(false);
-        return context.ToRequestResult();
     }
 
-    private async Task<RequestResult<TResult>> HandleQueryInternalAsync<TQuery, TResult>(
+    private async Task HandleQueryInternalAsync<TQuery, TResult>(
         IQueryHandler<TQuery, TResult> handler,
         ProcessingContext<TQuery, TResult> context)
         where TQuery : IQuery<TResult>
         where TResult : class?
     {
-        if (!context.IsValid)
-        {
-            return context.ToRequestResult();
-        }
-
         var result = await handler.HandleAsync(context).ConfigureAwait(false);
         context.WriteTo(result);
-        await this.ExecutePostProcessorsAsync(context).ConfigureAwait(false);
-        return context.ToRequestResult();
     }
 
     private async Task ExecutePreProcessorsAsync<TRequest>(ProcessingContext<TRequest> context)

@@ -16,10 +16,7 @@ internal sealed class AsyncValidationMiddleware : IPreProcessor
             {
                 context.WriteTo(validationResults);
                 context.WriteTo(StatusCodes.ValidationFailed);
-            }
-            else
-            {
-                await next(context).ConfigureAwait(false);
+                return;
             }
         }
 
