@@ -44,7 +44,7 @@ public record MyQuery(string Name) : IQuery<MyResult?>
 {
     public class MyQueryHandler : IQueryHandler<MyQuery, MyResult?>
     {
-        public override Task<MyResult?> HandleAsync(ProcessingContext<MyQuery, MyResult?> context)
+        public Task<MyResult?> HandleAsync(ProcessingContext<MyQuery, MyResult?> context)
         {
             // perform the actual handling of the query and return the result
         }
@@ -139,6 +139,12 @@ public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Nex
     await next(context);
 }
 ```
+
+### Samples
+
+Please refer to the [samples](https://github.com/FoxDawg/Medi8.Net/tree/develop/samples/Sample.WebApi) section for a simple
+but full example of a small web application.
+
 ### Contribution
 
 Feel free to raise issues and discussions in this repository for bugs and feature requests.
