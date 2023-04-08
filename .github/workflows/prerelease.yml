@@ -6,7 +6,7 @@ on:
       - develop
 
 env:
-  PACKAGE_VERSION: 1.1
+  PACKAGE_VERSION: 1.2.1
   PROJECT_PATH: 'src/Mediator/Mediator.csproj'
 
 jobs:
