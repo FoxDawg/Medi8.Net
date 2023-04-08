@@ -34,22 +34,46 @@ internal class PipelineBuilder
             return _ => Task.CompletedTask;
         }
 
-        var pipeline = new Next<TRequest>[filters.Count];
+        var pipeline = new Next<TRequest>[filters.Count + 1];
+        pipeline[filters.Count] = BuildLastInvocation<TRequest>();
         for (var i = filters.Count - 1; i >= 0; i--)
         {
             var filter = filters[i];
-            if (i == filters.Count - 1)
-            {
-                pipeline[i] = ctx => filter.InvokeAsync(ctx, _ => Task.CompletedTask);
-            }
-            else
-            {
-                var next = pipeline[i + 1];
-                pipeline[i] = ctx => filter.InvokeAsync(ctx, next);
-            }
+            var next = pipeline[i + 1];
+            pipeline[i] = BuildInvocation(filter, next);
         }
 
         Next<TRequest> begin = ctx => pipeline[0].Invoke(ctx);
         return begin;
+    }
+
+    private static Next<TRequest> BuildInvocation<TRequest>(IProcessor filter, Next<TRequest> next)
+    {
+        return ctx =>
+        {
+            if (ctx.Token.IsCancellationRequested)
+            {
+                ctx.WriteTo(StatusCodes.CancellationRequested);
+                ctx.WriteTo(new Error("Pipeline", "Cancellation was requested during pipeline execution."));
+                return Task.CompletedTask;
+            }
+
+            return filter.InvokeAsync(ctx, next);
+        };
+    }
+
+    private static Next<TRequest> BuildLastInvocation<TRequest>()
+    {
+        return ctx =>
+        {
+            if (ctx.Token.IsCancellationRequested)
+            {
+                ctx.WriteTo(StatusCodes.CancellationRequested);
+                ctx.WriteTo(new Error("Pipeline", "Cancellation was requested during pipeline execution."));
+                return Task.CompletedTask;
+            }
+
+            return Task.CompletedTask;
+        };
     }
 }

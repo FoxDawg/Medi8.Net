@@ -24,7 +24,7 @@ public record DoWithoutResultCommand(string Parameter) : ICommand<NoResult>
     {
         public Task<NoResult> HandleAsync(ProcessingContext<DoWithoutResultCommand, NoResult> context)
         {
-            return Task.FromResult(NoResult.Create);
+            return Task.FromResult(NoResult.Create());
         }
     }
 }

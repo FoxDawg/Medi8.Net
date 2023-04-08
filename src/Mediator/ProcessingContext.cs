@@ -46,11 +46,13 @@ public class ProcessingContext<TRequest> : ProcessingContext
 {
     private readonly IServiceScope scope;
 
-    public ProcessingContext(IServiceScope scope)
+    public ProcessingContext(IServiceScope scope, CancellationToken token)
     {
+        this.Token = token;
         this.scope = scope;
     }
 
+    public CancellationToken Token { get; }
     public TRequest Request { get; protected init; } = default!;
 
     public object? GetService(Type type)
@@ -70,15 +72,12 @@ public class ProcessingContext<TRequest, TResult> : ProcessingContext<TRequest>
     where TResult : class?
 {
     internal ProcessingContext(IServiceScope scope, TRequest request, CancellationToken token)
-        : base(scope)
+        : base(scope, token)
     {
         this.Request = request;
-        this.Token = token;
     }
 
     internal TResult Result { get; private set; } = default!;
-
-    public CancellationToken Token { get; }
 
     internal void WriteTo(TResult result)
     {

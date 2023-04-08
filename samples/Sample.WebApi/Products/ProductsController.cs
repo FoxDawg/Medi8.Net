@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Mediator.Contract;
 using Microsoft.AspNetCore.Mvc;
@@ -21,7 +20,7 @@ public class ProductsController : Controller
     [HttpGet]
     public async Task<ActionResult<Product>> Get(int productId)
     {
-        var result = await this.mediator.HandleQueryAsync<FindProductByIdQuery, Product?>(new FindProductByIdQuery(productId), CancellationToken.None);
+        var result = await this.mediator.HandleQueryAsync<FindProductByIdQuery, Product?>(new FindProductByIdQuery(productId), HttpContext.RequestAborted);
 
         switch (result.StatusCode)
         {
@@ -39,7 +38,7 @@ public class ProductsController : Controller
     [HttpPost]
     public async Task<ActionResult<Product>> Post(string productName)
     {
-        var result = await this.mediator.HandleCommandAsync<AddProductCommand, Product>(new AddProductCommand(productName), CancellationToken.None);
+        var result = await this.mediator.HandleCommandAsync<AddProductCommand, Product>(new AddProductCommand(productName), HttpContext.RequestAborted);
 
         switch (result.StatusCode)
         {

@@ -66,6 +66,32 @@ public sealed class CommandHandlerWithPipelineTests
     }
 
     [Fact]
+    public async Task AfterCancellation_PipelineIsNotContinued()
+    {
+        // Arrange
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddMediator(
+            config =>
+            {
+                config.AddHandler<CreateEntityCommand, CreateEntityCommand.CreateEntityCommandHandler>();
+                config.AddPreExecutionMiddleware<LongRunningPreProcessor>();
+            });
+        await using var serviceProvider = serviceCollection.BuildServiceProvider();
+        var mediator = serviceProvider.GetRequiredService<IMediator>();
+        var command = new CreateEntityCommand("foobar");
+        using var cts = new CancellationTokenSource();
+        cts.Cancel();
+
+        // Act
+        var result = await mediator.HandleCommandAsync<CreateEntityCommand, CreateEntityCommand.EntityCreated>(command, cts.Token);
+
+        // Assert
+        result.IsSuccessful.Should().BeFalse();
+        result.StatusCode.Should().Be(StatusCodes.CancellationRequested);
+        result.Result.Should().BeNull();
+    }
+
+    [Fact]
     public async Task Handles_UnauthorizedCommandWithResult()
     {
         // Arrange
@@ -134,6 +160,14 @@ public sealed class CommandHandlerWithPipelineTests
         {
             context.WriteTo(StatusCodes.PipelineFailed);
             return Task.CompletedTask;
+        }
+    }
+
+    private class LongRunningPreProcessor : IPreProcessor
+    {
+        public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(3));
         }
     }
 }

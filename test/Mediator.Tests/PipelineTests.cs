@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Mediator.Contract;
@@ -27,7 +28,7 @@ public sealed class PipelineTests
         var pipelineBuilder = serviceProvider.GetRequiredService<PipelineBuilder>();
         var pipelineStart = pipelineBuilder.BuildPreProcessorPipeline<DoWithoutResultCommand>();
         using var scope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
-        var context = new ProcessingContext<DoWithoutResultCommand>(scope);
+        var context = new ProcessingContext<DoWithoutResultCommand>(scope, CancellationToken.None);
 
         // Act
         await pipelineStart.Invoke(context);
@@ -52,7 +53,7 @@ public sealed class PipelineTests
         var pipelineBuilder = serviceProvider.GetRequiredService<PipelineBuilder>();
         var pipelineStart = pipelineBuilder.BuildPostProcessorPipeline<DoWithoutResultCommand>();
         using var scope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
-        var context = new ProcessingContext<DoWithoutResultCommand>(scope);
+        var context = new ProcessingContext<DoWithoutResultCommand>(scope, CancellationToken.None);
 
         // Act
         await pipelineStart.Invoke(context);
@@ -71,7 +72,7 @@ public sealed class PipelineTests
         var pipelineBuilder = serviceProvider.GetRequiredService<PipelineBuilder>();
         var pipelineStart = pipelineBuilder.BuildPreProcessorPipeline<DoWithoutResultCommand>();
         using var scope = serviceProvider.GetRequiredService<IServiceScopeFactory>().CreateScope();
-        var context = new ProcessingContext<DoWithoutResultCommand>(scope);
+        var context = new ProcessingContext<DoWithoutResultCommand>(scope, CancellationToken.None);
 
         // Act
         await pipelineStart.Invoke(context);

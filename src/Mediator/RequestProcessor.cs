@@ -103,8 +103,16 @@ internal sealed class RequestProcessor : IMediator
         where TCommand : ICommand<TResult>
         where TResult : class?
     {
-        var result = await handler.HandleAsync(context).ConfigureAwait(false);
-        context.WriteTo(result);
+        try
+        {
+            var result = await handler.HandleAsync(context).ConfigureAwait(false);
+            context.WriteTo(result);
+        }
+        catch (OperationCanceledException)
+        {
+            context.WriteTo(StatusCodes.CancellationRequested);
+            context.WriteTo(new Error("Handler", "Cancellation was requested during pipeline execution."));
+        }
     }
 
     private async Task HandleQueryInternalAsync<TQuery, TResult>(
@@ -113,8 +121,16 @@ internal sealed class RequestProcessor : IMediator
         where TQuery : IQuery<TResult>
         where TResult : class?
     {
-        var result = await handler.HandleAsync(context).ConfigureAwait(false);
-        context.WriteTo(result);
+        try
+        {
+            var result = await handler.HandleAsync(context).ConfigureAwait(false);
+            context.WriteTo(result);
+        }
+        catch (OperationCanceledException)
+        {
+            context.WriteTo(StatusCodes.CancellationRequested);
+            context.WriteTo(new Error("Handler", "Cancellation was requested during pipeline execution."));
+        }
     }
 
     private async Task ExecutePreProcessorsAsync<TRequest>(ProcessingContext<TRequest> context)

@@ -25,6 +25,7 @@ public sealed class CommandHandlerTests : IDisposable
                 config.AddHandler<ThrowExceptionCommand, ThrowExceptionCommand.ThrowExceptionCommandHandler>();
                 config.AddHandler<DoWithoutResultCommand, DoWithoutResultCommand.DoWithoutResultCommandHandler>();
                 config.AddValidator<DoWithoutResultCommand, DoWithoutResultCommand.DoWithoutCommandValidator>();
+                config.AddHandler<ExecuteLongRunningTaskCommand, ExecuteLongRunningTaskCommand.ExecuteLongRunningTaskCommandHandler>();
             });
         this.serviceProvider = serviceCollection.BuildServiceProvider();
     }
@@ -32,6 +33,22 @@ public sealed class CommandHandlerTests : IDisposable
     public void Dispose()
     {
         this.serviceProvider.Dispose();
+    }
+
+    [Fact]
+    public async Task LongRunningTask_CanBeCancelled()
+    {
+        // Arrange
+        var mediator = this.serviceProvider.GetRequiredService<IMediator>();
+        var command = new ExecuteLongRunningTaskCommand();
+        using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(2));
+
+        // Act
+        var result = await mediator.HandleCommandAsync(command, cts.Token).ConfigureAwait(false);
+
+        // Assert
+        result.IsSuccessful.Should().BeFalse();
+        result.StatusCode.Should().Be(StatusCodes.CancellationRequested);
     }
 
     [Fact]
