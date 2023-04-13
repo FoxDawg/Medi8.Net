@@ -134,12 +134,14 @@ internal sealed class RequestProcessor : IMediator
     }
 
     private async Task ExecutePreProcessorsAsync<TRequest>(ProcessingContext<TRequest> context)
+        where TRequest : IRequest
     {
         var next = this.cache.GetOrAddPreprocessor(() => this.pipelineBuilder.BuildPreProcessorPipeline<TRequest>());
         await next.Invoke(context).ConfigureAwait(false);
     }
 
     private async Task ExecutePostProcessorsAsync<TRequest>(ProcessingContext<TRequest> context)
+        where TRequest : IRequest
     {
         var next = this.cache.GetOrAddPostprocessor(() => this.pipelineBuilder.BuildPostProcessorPipeline<TRequest>());
         await next.Invoke(context).ConfigureAwait(false);

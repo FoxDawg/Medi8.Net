@@ -64,6 +64,7 @@ public class MiddlewareTests
     private class PreMiddleware : IPreProcessor
     {
         public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
+            where TRequest : IRequest
         {
             var counter = context.GetRequiredService<PreProcessorCounter>();
             counter.Increment();
@@ -84,6 +85,7 @@ public class MiddlewareTests
     private class PostMiddleware : IPostProcessor
     {
         public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
+            where TRequest : IRequest
         {
             var counter = context.GetRequiredService<PostProcessorCounter>();
             counter.Increment();

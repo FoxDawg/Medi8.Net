@@ -7,9 +7,9 @@ namespace Sample.WebApi.Products;
 
 public record AddProductCommand(string Name) : ICommand<Product>
 {
-    public class AddProductValidator : IValidateRequest<AddProductCommand>
+    public class AddProductValidator : IValidator<AddProductCommand>
     {
-        public Task<Errors> ValidateAsync(ProcessingContext<AddProductCommand> context)
+        public Task<Errors> ValidateAsync(IProcessingContext<AddProductCommand> context)
         {
             if (string.IsNullOrEmpty(context.Request.Name))
             {
@@ -29,7 +29,7 @@ public record AddProductCommand(string Name) : ICommand<Product>
             this.store = store;
         }
 
-        public Task<Product> HandleAsync(ProcessingContext<AddProductCommand, Product> context)
+        public Task<Product> HandleAsync(IProcessingContext<AddProductCommand> context)
         {
             var product = new Product
             {

@@ -13,9 +13,9 @@ public record GetEntityQuery(long Id) : IQuery<GetEntityQuery.Entity>
 
     public record Entity(long Id);
 
-    public class GetEntityQueryValidator : IValidateRequest<GetEntityQuery>
+    public class GetEntityQueryValidator : IValidator<GetEntityQuery>
     {
-        public Task<Errors> ValidateAsync(ProcessingContext<GetEntityQuery> context)
+        public Task<Errors> ValidateAsync(IProcessingContext<GetEntityQuery> context)
         {
             if (long.IsNegative(context.Request.Id))
             {
@@ -28,7 +28,7 @@ public record GetEntityQuery(long Id) : IQuery<GetEntityQuery.Entity>
 
     public class GetEntityQueryHandler : IQueryHandler<GetEntityQuery, Entity?>
     {
-        public async Task<Entity?> HandleAsync(ProcessingContext<GetEntityQuery, Entity?> context)
+        public async Task<Entity?> HandleAsync(IProcessingContext<GetEntityQuery> context)
         {
             await Task.CompletedTask.ConfigureAwait(false);
             return context.Request.Id switch

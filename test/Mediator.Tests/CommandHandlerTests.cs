@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Mediator.Contract;
 using Mediator.Setup;
 using Mediator.Tests.Commands;
@@ -47,6 +48,7 @@ public sealed class CommandHandlerTests : IDisposable
         var result = await mediator.HandleCommandAsync(command, cts.Token).ConfigureAwait(false);
 
         // Assert
+        using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeFalse();
         result.StatusCode.Should().Be(StatusCodes.CancellationRequested);
     }
@@ -62,6 +64,7 @@ public sealed class CommandHandlerTests : IDisposable
         var result = await mediator.HandleCommandAsync(command, CancellationToken.None).ConfigureAwait(false);
 
         // Assert
+        using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeTrue();
         result.StatusCode.Should().Be(StatusCodes.Ok);
         result.Result.Should().BeOfType<NoResult>();
@@ -79,6 +82,7 @@ public sealed class CommandHandlerTests : IDisposable
         var result = await mediator.HandleCommandAsync<CreateEntityCommand, CreateEntityCommand.EntityCreated>(command, CancellationToken.None);
 
         // Assert
+        using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeTrue();
         result.StatusCode.Should().Be(StatusCodes.Ok);
         result.Result.Should().BeOfType<CreateEntityCommand.EntityCreated>();
@@ -96,6 +100,7 @@ public sealed class CommandHandlerTests : IDisposable
         var result = await mediator.HandleCommandAsync(command, CancellationToken.None);
 
         // Assert
+        using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeFalse();
         result.StatusCode.Should().Be(StatusCodes.ValidationFailed);
         result.Result.Should().BeNull();
@@ -113,6 +118,7 @@ public sealed class CommandHandlerTests : IDisposable
         var result = await mediator.HandleCommandAsync<CreateEntityCommand, CreateEntityCommand.EntityCreated>(command, CancellationToken.None);
 
         // Assert
+        using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeFalse();
         result.StatusCode.Should().Be(StatusCodes.ValidationFailed);
         result.Result.Should().BeNull();

@@ -6,12 +6,12 @@ public interface ICommandHandler<TCommand, TResponse>
     where TCommand : ICommand<TResponse>
     where TResponse : class?
 {
-    Task<TResponse> HandleAsync(ProcessingContext<TCommand, TResponse> context);
+    Task<TResponse> HandleAsync(IProcessingContext<TCommand> context);
 }
 
 public interface IQueryHandler<TQuery, TResponse>
     where TQuery : IQuery<TResponse>
     where TResponse : class?
 {
-    Task<TResponse> HandleAsync(ProcessingContext<TQuery, TResponse> context);
+    Task<TResponse> HandleAsync(IProcessingContext<TQuery> context);
 }

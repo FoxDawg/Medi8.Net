@@ -10,9 +10,9 @@ public record CreateEntityCommand(string Name) : ICommand<CreateEntityCommand.En
     // ReSharper disable once NotAccessedPositionalProperty.Global
     public record EntityCreated(long Id);
 
-    public class CreateEntityCommandValidator : IValidateRequest<CreateEntityCommand>
+    public class CreateEntityCommandValidator : IValidator<CreateEntityCommand>
     {
-        public Task<Errors> ValidateAsync(ProcessingContext<CreateEntityCommand> context)
+        public Task<Errors> ValidateAsync(IProcessingContext<CreateEntityCommand> context)
         {
             if (context.Request.Name.Contains("invalid", StringComparison.OrdinalIgnoreCase))
             {
@@ -25,7 +25,7 @@ public record CreateEntityCommand(string Name) : ICommand<CreateEntityCommand.En
 
     public class CreateEntityCommandHandler : ICommandHandler<CreateEntityCommand, EntityCreated>
     {
-        public Task<EntityCreated> HandleAsync(ProcessingContext<CreateEntityCommand, EntityCreated> context)
+        public Task<EntityCreated> HandleAsync(IProcessingContext<CreateEntityCommand> context)
         {
             return Task.FromResult(new EntityCreated(25));
         }

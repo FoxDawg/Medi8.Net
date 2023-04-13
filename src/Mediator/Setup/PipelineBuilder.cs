@@ -16,18 +16,21 @@ internal class PipelineBuilder
     }
 
     internal Next<TRequest> BuildPreProcessorPipeline<TRequest>()
+        where TRequest : IRequest
     {
         var filterFactories = this.configuration.Preprocessors;
         return this.BuildPipeline<TRequest>(filterFactories);
     }
 
     internal Next<TRequest> BuildPostProcessorPipeline<TRequest>()
+        where TRequest : IRequest
     {
         var filterFactories = this.configuration.Postprocessors;
         return this.BuildPipeline<TRequest>(filterFactories);
     }
 
     private Next<TRequest> BuildPipeline<TRequest>(IList<IProcessor> filters)
+        where TRequest : IRequest
     {
         if (!filters.Any())
         {
@@ -48,6 +51,7 @@ internal class PipelineBuilder
     }
 
     private static Next<TRequest> BuildInvocation<TRequest>(IProcessor filter, Next<TRequest> next)
+        where TRequest : IRequest
     {
         return ctx =>
         {
@@ -63,6 +67,7 @@ internal class PipelineBuilder
     }
 
     private static Next<TRequest> BuildLastInvocation<TRequest>()
+        where TRequest : IRequest
     {
         return ctx =>
         {

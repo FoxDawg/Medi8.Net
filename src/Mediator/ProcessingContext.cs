@@ -42,7 +42,8 @@ public class ProcessingContext
     }
 }
 
-public class ProcessingContext<TRequest> : ProcessingContext
+public class ProcessingContext<TRequest> : ProcessingContext, IProcessingContext<TRequest>
+    where TRequest : IRequest
 {
     private readonly IServiceScope scope;
 

@@ -7,9 +7,9 @@ namespace Sample.WebApi.Products;
 
 public record FindProductByIdQuery(int Id) : IQuery<Product?>
 {
-    public class FindProductByIdQueryValidator : IValidateRequest<FindProductByIdQuery>
+    public class FindProductByIdQueryValidator : IValidator<FindProductByIdQuery>
     {
-        public Task<Errors> ValidateAsync(ProcessingContext<FindProductByIdQuery> context)
+        public Task<Errors> ValidateAsync(IProcessingContext<FindProductByIdQuery> context)
         {
             if (context.Request.Id < 0)
             {
@@ -29,7 +29,7 @@ public record FindProductByIdQuery(int Id) : IQuery<Product?>
             this.store = store;
         }
 
-        public Task<Product?> HandleAsync(ProcessingContext<FindProductByIdQuery, Product?> context)
+        public Task<Product?> HandleAsync(IProcessingContext<FindProductByIdQuery> context)
         {
             return Task.FromResult(this.store.FindById(context.Request.Id));
         }

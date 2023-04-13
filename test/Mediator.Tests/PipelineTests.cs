@@ -84,6 +84,7 @@ public sealed class PipelineTests
     private class PreFilter : IPreProcessor
     {
         public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
+            where TRequest : IRequest
         {
             var statusCode = context.GetRequiredService<StatusCodeProvider>().GetAndIncrement();
             context.WriteTo(statusCode);
@@ -94,6 +95,7 @@ public sealed class PipelineTests
     private class PostFilter : IPostProcessor
     {
         public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
+            where TRequest : IRequest
         {
             var statusCode = context.GetRequiredService<StatusCodeProvider>().GetAndIncrement();
             context.WriteTo(statusCode);

@@ -40,9 +40,10 @@ public class MediatorConfigurator
     }
 
     public void AddValidator<TRequest, TValidator>()
-        where TValidator : class, IValidateRequest<TRequest>
+        where TValidator : class, IValidator<TRequest>
+        where TRequest : IRequest
     {
-        this.serviceCollection.AddScoped<IValidateRequest<TRequest>, TValidator>();
+        this.serviceCollection.AddScoped<IValidator<TRequest>, TValidator>();
     }
 
     public void AddPreExecutionMiddleware<TMiddleware>()

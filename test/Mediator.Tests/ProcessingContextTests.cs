@@ -1,6 +1,7 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Execution;
 using Mediator.Contract;
 using Mediator.Pipeline;
 using Mediator.Setup;
@@ -32,6 +33,7 @@ public class ProcessingContextTests
         var result = await mediator.HandleCommandAsync<CreateEntityCommand, CreateEntityCommand.EntityCreated>(command, CancellationToken.None);
 
         // Assert
+        using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeTrue();
         result.StatusCode.Should().Be(StatusCodes.Ok);
     }
@@ -39,6 +41,7 @@ public class ProcessingContextTests
     private class PreFilter : IPreProcessor
     {
         public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
+            where TRequest : IRequest
         {
             context.TryAddPayload("MyKey", 42);
             await next(context);
@@ -48,6 +51,7 @@ public class ProcessingContextTests
     private class PostFilter : IPostProcessor
     {
         public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
+            where TRequest : IRequest
         {
             if (context.TryGetPayload("MyKey") is 42)
             {

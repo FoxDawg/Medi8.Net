@@ -7,9 +7,9 @@ namespace Mediator.Tests.Commands;
 
 public record DoWithoutResultCommand(string Parameter) : ICommand<NoResult>
 {
-    public class DoWithoutCommandValidator : IValidateRequest<DoWithoutResultCommand>
+    public class DoWithoutCommandValidator : IValidator<DoWithoutResultCommand>
     {
-        public Task<Errors> ValidateAsync(ProcessingContext<DoWithoutResultCommand> context)
+        public Task<Errors> ValidateAsync(IProcessingContext<DoWithoutResultCommand> context)
         {
             if (context.Request.Parameter.Contains("invalid", StringComparison.OrdinalIgnoreCase))
             {
@@ -22,7 +22,7 @@ public record DoWithoutResultCommand(string Parameter) : ICommand<NoResult>
 
     public class DoWithoutResultCommandHandler : ICommandHandler<DoWithoutResultCommand, NoResult>
     {
-        public Task<NoResult> HandleAsync(ProcessingContext<DoWithoutResultCommand, NoResult> context)
+        public Task<NoResult> HandleAsync(IProcessingContext<DoWithoutResultCommand> context)
         {
             return Task.FromResult(NoResult.Create());
         }
