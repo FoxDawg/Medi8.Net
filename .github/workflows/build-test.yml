@@ -1,4 +1,4 @@
-﻿name: "Build and pre-release"
+﻿name: "Build and test"
 
 on: push
 
