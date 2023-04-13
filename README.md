@@ -44,7 +44,7 @@ public record MyQuery(string Name) : IQuery<MyResult?>
 {
     public class MyQueryHandler : IQueryHandler<MyQuery, MyResult?>
     {
-        public Task<MyResult?> HandleAsync(ProcessingContext<MyQuery, MyResult?> context)
+        public Task<MyResult?> HandleAsync(IProcessingContext<MyQuery> context)
         {
             // perform the actual handling of the query and return the result
         }
@@ -71,7 +71,7 @@ and an implementation
 ```csharp
 public class FindProductByIdQueryValidator : IValidateRequest<FindProductByIdQuery>
 {
-    public Task<Errors> ValidateAsync(ProcessingContext<FindProductByIdQuery> context)
+    public Task<Errors> ValidateAsync(IProcessingContext<FindProductByIdQuery> context)
     {
         // do implementation here
         // ...
