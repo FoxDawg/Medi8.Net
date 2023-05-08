@@ -4,11 +4,11 @@ using Mediator.Contract;
 
 namespace Mediator.Tests.Commands;
 
-public record ThrowExceptionCommand : ICommand<NoResult>
+public record ThrowExceptionCommand : ICommand
 {
-    public class ThrowExceptionCommandHandler : ICommandHandler<ThrowExceptionCommand, NoResult>
+    public class ThrowExceptionCommandHandler : ICommandHandler<ThrowExceptionCommand>
     {
-        public Task<NoResult> HandleAsync(IProcessingContext<ThrowExceptionCommand> context)
+        public Task HandleAsync(IProcessingContext<ThrowExceptionCommand> context)
         {
             throw new ArithmeticException("This was intended!");
         }

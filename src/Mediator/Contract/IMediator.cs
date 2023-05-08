@@ -13,6 +13,6 @@ public interface IMediator
         where TCommand : ICommand<TResult>
         where TResult : class?;
 
-    Task<RequestResult<NoResult>> HandleCommandAsync<TCommand>(TCommand command, CancellationToken token)
-        where TCommand : ICommand<NoResult>;
+    Task<RequestResult> HandleCommandAsync<TCommand>(TCommand command, CancellationToken token)
+        where TCommand : ICommand;
 }

@@ -3,6 +3,30 @@ using System.Linq;
 
 namespace Mediator.Contract;
 
+public record RequestResult : RequestResult<NoResult>
+{
+    internal RequestResult(int statusCode)
+        : base(NoResult.Create(), statusCode)
+    {
+    }
+
+    internal RequestResult(IEnumerable<Error> errors, int statusCode)
+        : base(errors, statusCode)
+    {
+    }
+
+    internal static RequestResult FromResult<T>(RequestResult<T> result)
+        where T : class
+    {
+        if (result.IsSuccessful)
+        {
+            return new RequestResult(result.StatusCode);
+        }
+
+        return new RequestResult(result.Errors.ToList(), result.StatusCode);
+    }
+}
+
 public record RequestResult<TResult>
     where TResult : class?
 {

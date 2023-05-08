@@ -9,9 +9,8 @@ public interface ICommandHandler<TCommand, TResponse>
     Task<TResponse> HandleAsync(IProcessingContext<TCommand> context);
 }
 
-public interface IQueryHandler<TQuery, TResponse>
-    where TQuery : IQuery<TResponse>
-    where TResponse : class?
+public interface ICommandHandler<TCommand>
+    where TCommand : ICommand
 {
-    Task<TResponse> HandleAsync(IProcessingContext<TQuery> context);
+    Task HandleAsync(IProcessingContext<TCommand> context);
 }

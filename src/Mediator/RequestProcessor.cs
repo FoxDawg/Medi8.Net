@@ -23,10 +23,37 @@ internal sealed class RequestProcessor : IMediator
         this.cache = cache;
     }
 
-    public async Task<RequestResult<NoResult>> HandleCommandAsync<TCommand>(TCommand command, CancellationToken token)
-        where TCommand : ICommand<NoResult>
+    public async Task<RequestResult> HandleCommandAsync<TCommand>(TCommand command, CancellationToken token)
+        where TCommand : ICommand
     {
-        return await this.HandleCommandAsync<TCommand, NoResult>(command, token).ConfigureAwait(false);
+        using var scope = this.provider.GetRequiredService<IServiceScopeFactory>().CreateScope();
+        var context = new ProcessingContext<TCommand, NoResult>(scope, command, token);
+
+        await this.ExecutePreProcessorsAsync(context).ConfigureAwait(false);
+
+        if (!context.IsValid)
+        {
+            return RequestResult.FromResult(context.ToRequestResult());
+        }
+
+        var handler = this.provider.GetRequiredService(this.configuration.GetHandler<TCommand>());
+        if (handler is ICommandHandler<TCommand> commandHandler)
+        {
+            await this.HandleCommandInternalAsync(commandHandler, context).ConfigureAwait(false);
+        }
+        else
+        {
+            throw new InvalidCastException($"Registered handler is not of type {typeof(ICommandHandler<TCommand>)}");
+        }
+
+        if (!context.IsValid)
+        {
+            return RequestResult.FromResult(context.ToRequestResult());
+        }
+
+        await this.ExecutePostProcessorsAsync(context).ConfigureAwait(false);
+
+        return RequestResult.FromResult(context.ToRequestResult());
     }
 
     public async Task<RequestResult<TResult>> HandleCommandAsync<TCommand, TResult>(TCommand command, CancellationToken token)
@@ -107,6 +134,22 @@ internal sealed class RequestProcessor : IMediator
         {
             var result = await handler.HandleAsync(context).ConfigureAwait(false);
             context.WriteTo(result);
+        }
+        catch (OperationCanceledException)
+        {
+            context.WriteTo(StatusCodes.CancellationRequested);
+            context.WriteTo(new Error("Handler", "Cancellation was requested during pipeline execution."));
+        }
+    }
+
+    private async Task HandleCommandInternalAsync<TCommand>(
+        ICommandHandler<TCommand> handler,
+        ProcessingContext<TCommand> context)
+        where TCommand : ICommand
+    {
+        try
+        {
+            await handler.HandleAsync(context).ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {

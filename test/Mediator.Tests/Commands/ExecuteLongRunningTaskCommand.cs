@@ -4,14 +4,13 @@ using Mediator.Contract;
 
 namespace Mediator.Tests.Commands;
 
-public record ExecuteLongRunningTaskCommand : ICommand<NoResult>
+public record ExecuteLongRunningTaskCommand : ICommand
 {
-public class ExecuteLongRunningTaskCommandHandler : ICommandHandler<ExecuteLongRunningTaskCommand, NoResult>
-{
-    public async Task<NoResult> HandleAsync(IProcessingContext<ExecuteLongRunningTaskCommand> context)
+    public class ExecuteLongRunningTaskCommandHandler : ICommandHandler<ExecuteLongRunningTaskCommand>
     {
-        await Task.Delay(TimeSpan.FromSeconds(10), context.Token).ConfigureAwait(false);
-        return NoResult.Create();
+        public async Task HandleAsync(IProcessingContext<ExecuteLongRunningTaskCommand> context)
+        {
+            await Task.Delay(TimeSpan.FromSeconds(10), context.Token).ConfigureAwait(false);
+        }
     }
-}
 }

@@ -50,6 +50,28 @@ public record MyQuery(string Name) : IQuery<MyResult?>
         }
     }
 }
+
+public record MyCommandWithResult : ICommand<MyResult?>
+{
+    public class MyCommandWithResultHandler : ICommandHandler<MyCommand, MyResult?>
+    {
+        public Task<MyResult?> HandleAsync(IProcessingContext<MyCommand> context)
+        {
+            // perform the actual handling of the query and return the result
+        }
+    }
+}
+
+public record MyCommand : ICommand
+{
+    public class MyCommandHandler : ICommandHandler<MyCommand>
+    {
+        public Task HandleAsync(IProcessingContext<MyCommand> context)
+        {
+            // perform the actual handling of the query and return the result
+        }
+    }
+}
 ```
 
 ### Advanced scenarios

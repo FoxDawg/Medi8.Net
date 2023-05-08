@@ -29,7 +29,7 @@ public class MiddlewareTests
             });
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        var result = await serviceProvider.GetRequiredService<IMediator>().HandleCommandAsync<DoWithoutResultCommand, NoResult>(new DoWithoutResultCommand("foo"), CancellationToken.None);
+        var result = await serviceProvider.GetRequiredService<IMediator>().HandleCommandAsync(new DoWithoutResultCommand("foo"), CancellationToken.None);
 
         using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeTrue();

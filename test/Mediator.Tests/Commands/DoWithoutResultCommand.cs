@@ -5,7 +5,7 @@ using Mediator.Contract;
 
 namespace Mediator.Tests.Commands;
 
-public record DoWithoutResultCommand(string Parameter) : ICommand<NoResult>
+public record DoWithoutResultCommand(string Parameter) : ICommand
 {
     public class DoWithoutCommandValidator : IValidator<DoWithoutResultCommand>
     {
@@ -20,11 +20,11 @@ public record DoWithoutResultCommand(string Parameter) : ICommand<NoResult>
         }
     }
 
-    public class DoWithoutResultCommandHandler : ICommandHandler<DoWithoutResultCommand, NoResult>
+    public class DoWithoutResultCommandHandler : ICommandHandler<DoWithoutResultCommand>
     {
-        public Task<NoResult> HandleAsync(IProcessingContext<DoWithoutResultCommand> context)
+        public Task HandleAsync(IProcessingContext<DoWithoutResultCommand> context)
         {
-            return Task.FromResult(NoResult.Create());
+            return Task.CompletedTask;
         }
     }
 }
