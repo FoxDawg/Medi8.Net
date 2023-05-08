@@ -50,7 +50,7 @@ public sealed class CommandHandlerTests : IDisposable
         // Assert
         using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeFalse();
-        result.StatusCode.Should().Be(StatusCodes.CancellationRequested);
+        result.Status.Should().Be(Status.CancellationRequested);
     }
 
     [Fact]
@@ -66,7 +66,7 @@ public sealed class CommandHandlerTests : IDisposable
         // Assert
         using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeTrue();
-        result.StatusCode.Should().Be(StatusCodes.Ok);
+        result.Status.Should().Be(Status.Ok);
         result.Result.Should().BeOfType<NoResult>();
         result.Result.As<NoResult>().Should().NotBeNull();
     }
@@ -84,7 +84,7 @@ public sealed class CommandHandlerTests : IDisposable
         // Assert
         using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeTrue();
-        result.StatusCode.Should().Be(StatusCodes.Ok);
+        result.Status.Should().Be(Status.Ok);
         result.Result.Should().BeOfType<CreateEntityCommand.EntityCreated>();
         result.Result.As<CreateEntityCommand.EntityCreated>().Should().NotBeNull();
     }
@@ -102,7 +102,7 @@ public sealed class CommandHandlerTests : IDisposable
         // Assert
         using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeFalse();
-        result.StatusCode.Should().Be(StatusCodes.ValidationFailed);
+        result.Status.Should().Be(Status.ValidationFailed);
         result.Result.Should().BeNull();
         result.Errors.Should().ContainSingle();
     }
@@ -120,7 +120,7 @@ public sealed class CommandHandlerTests : IDisposable
         // Assert
         using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeFalse();
-        result.StatusCode.Should().Be(StatusCodes.ValidationFailed);
+        result.Status.Should().Be(Status.ValidationFailed);
         result.Result.Should().BeNull();
         result.Errors.Should().ContainSingle();
     }

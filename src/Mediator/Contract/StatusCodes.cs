@@ -1,11 +1,17 @@
 namespace Mediator.Contract;
 
-public static class StatusCodes
+public abstract record Status(int Value)
 {
-    public const int Ok = 200;
-    public const int PipelineFailed = 300;
-    public const int CancellationRequested = 350;
-    public const int Unauthorized = 400;
-    public const int Forbidden = 401;
-    public const int ValidationFailed = 500;
+    public static OkStatus Ok { get; } = new();
+    public static PipelineFailedStatus PipelineFailed { get; } = new();
+    public static CancellationRequestedStatus CancellationRequested { get; } = new();
+    public static ValidationFailedStatus ValidationFailed { get; } = new();
+
+    public record OkStatus() : Status(20);
+
+    public record PipelineFailedStatus() : Status(30);
+
+    public record CancellationRequestedStatus() : Status(40);
+
+    public record ValidationFailedStatus() : Status(60);
 }

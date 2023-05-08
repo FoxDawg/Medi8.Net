@@ -37,7 +37,7 @@ public sealed class CommandHandlerWithPipelineTests
         // Assert
         using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeFalse();
-        result.StatusCode.Should().Be(StatusCodes.PipelineFailed);
+        result.Status.Should().Be(Status.PipelineFailed);
         result.Result.Should().BeNull();
     }
 
@@ -63,7 +63,7 @@ public sealed class CommandHandlerWithPipelineTests
         // Assert
         using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeTrue();
-        result.StatusCode.Should().Be(StatusCodes.Ok);
+        result.Status.Should().Be(Status.Ok);
         result.Result.Should().BeOfType<CreateEntityCommand.EntityCreated>();
         result.Result.As<CreateEntityCommand.EntityCreated>().Should().NotBeNull();
     }
@@ -92,7 +92,7 @@ public sealed class CommandHandlerWithPipelineTests
         // Assert
         using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeFalse();
-        result.StatusCode.Should().Be(StatusCodes.CancellationRequested);
+        result.Status.Should().Be(Status.CancellationRequested);
         result.Result.Should().BeNull();
         serviceProvider.GetRequiredService<StatusCodeProvider>().StatusCode.Should().Be(0);
     }
@@ -120,7 +120,7 @@ public sealed class CommandHandlerWithPipelineTests
         // Assert
         using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeFalse();
-        result.StatusCode.Should().Be(StatusCodes.CancellationRequested);
+        result.Status.Should().Be(Status.CancellationRequested);
         result.Result.Should().BeNull();
     }
 
@@ -146,7 +146,7 @@ public sealed class CommandHandlerWithPipelineTests
         // Assert
         using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeFalse();
-        result.StatusCode.Should().Be(StatusCodes.Forbidden);
+        result.Status.Should().Be(new AuthenticationFilter.ForbiddenStatus());
         result.Errors.Should().ContainSingle();
     }
 
@@ -174,13 +174,14 @@ public sealed class CommandHandlerWithPipelineTests
 
     private class AuthenticationFilter : IPreProcessor
     {
+        public record ForbiddenStatus() : Status(403);
         public async Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
             where TRequest : IRequest
         {
             var isAuthenticated = context.GetRequiredService<Func<bool>>()();
             if (!isAuthenticated)
             {
-                context.WriteTo(StatusCodes.Forbidden);
+                context.WriteTo(new ForbiddenStatus());
                 context.WriteTo(new Error("Auth", "Not authenticated."));
                 return;
             }
@@ -194,7 +195,7 @@ public sealed class CommandHandlerWithPipelineTests
         public Task InvokeAsync<TRequest>(ProcessingContext<TRequest> context, Next<TRequest> next)
             where TRequest : IRequest
         {
-            context.WriteTo(StatusCodes.PipelineFailed);
+            context.WriteTo(Status.PipelineFailed);
             return Task.CompletedTask;
         }
     }

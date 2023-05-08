@@ -57,7 +57,7 @@ internal class PipelineBuilder
         {
             if (ctx.Token.IsCancellationRequested)
             {
-                ctx.WriteTo(StatusCodes.CancellationRequested);
+                ctx.WriteTo(Status.CancellationRequested);
                 ctx.WriteTo(new Error("Pipeline", "Cancellation was requested during pipeline execution."));
                 return Task.CompletedTask;
             }
@@ -73,7 +73,7 @@ internal class PipelineBuilder
         {
             if (ctx.Token.IsCancellationRequested)
             {
-                ctx.WriteTo(StatusCodes.CancellationRequested);
+                ctx.WriteTo(Status.CancellationRequested);
                 ctx.WriteTo(new Error("Pipeline", "Cancellation was requested during pipeline execution."));
                 return Task.CompletedTask;
             }

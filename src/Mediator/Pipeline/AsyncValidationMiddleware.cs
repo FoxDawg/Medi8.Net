@@ -16,7 +16,7 @@ internal sealed class AsyncValidationMiddleware : IPreProcessor
             if (validationResults.Any())
             {
                 context.WriteTo(validationResults);
-                context.WriteTo(StatusCodes.ValidationFailed);
+                context.WriteTo(Status.ValidationFailed);
                 return;
             }
         }

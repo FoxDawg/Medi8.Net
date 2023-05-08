@@ -35,7 +35,7 @@ public class ProcessingContextTests
         // Assert
         using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeTrue();
-        result.StatusCode.Should().Be(StatusCodes.Ok);
+        result.Status.Should().Be(Status.Ok);
     }
 
     private class PreFilter : IPreProcessor
@@ -59,7 +59,7 @@ public class ProcessingContextTests
             }
             else
             {
-                context.WriteTo(StatusCodes.PipelineFailed);
+                context.WriteTo(Status.PipelineFailed);
             }
         }
     }

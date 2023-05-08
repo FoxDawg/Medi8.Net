@@ -137,7 +137,7 @@ internal sealed class RequestProcessor : IMediator
         }
         catch (OperationCanceledException)
         {
-            context.WriteTo(StatusCodes.CancellationRequested);
+            context.WriteTo(Status.CancellationRequested);
             context.WriteTo(new Error("Handler", "Cancellation was requested during pipeline execution."));
         }
     }
@@ -153,7 +153,7 @@ internal sealed class RequestProcessor : IMediator
         }
         catch (OperationCanceledException)
         {
-            context.WriteTo(StatusCodes.CancellationRequested);
+            context.WriteTo(Status.CancellationRequested);
             context.WriteTo(new Error("Handler", "Cancellation was requested during pipeline execution."));
         }
     }
@@ -171,7 +171,7 @@ internal sealed class RequestProcessor : IMediator
         }
         catch (OperationCanceledException)
         {
-            context.WriteTo(StatusCodes.CancellationRequested);
+            context.WriteTo(Status.CancellationRequested);
             context.WriteTo(new Error("Handler", "Cancellation was requested during pipeline execution."));
         }
     }

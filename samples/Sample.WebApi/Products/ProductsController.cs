@@ -20,15 +20,15 @@ public class ProductsController : Controller
     [HttpGet]
     public async Task<ActionResult<Product>> Get(int productId)
     {
-        var result = await this.mediator.HandleQueryAsync<FindProductByIdQuery, Product?>(new FindProductByIdQuery(productId), HttpContext.RequestAborted);
+        var result = await this.mediator.HandleQueryAsync<FindProductByIdQuery, Product?>(new FindProductByIdQuery(productId), this.HttpContext.RequestAborted);
 
-        switch (result.StatusCode)
+        switch (result.Status)
         {
-            case StatusCodes.Ok when result.Result is null:
+            case Status.OkStatus when result.Result is null:
                 return this.NoContent();
-            case StatusCodes.Ok:
+            case Status.OkStatus:
                 return new OkObjectResult(result.Result);
-            case StatusCodes.ValidationFailed:
+            case Status.ValidationFailedStatus:
                 return new BadRequestObjectResult(result.Errors.ToModelStateDictionary());
             default:
                 throw new InvalidOperationException("Case not handled.");
@@ -38,13 +38,13 @@ public class ProductsController : Controller
     [HttpPost]
     public async Task<ActionResult<Product>> Post(string productName)
     {
-        var result = await this.mediator.HandleCommandAsync<AddProductCommand, Product>(new AddProductCommand(productName), HttpContext.RequestAborted);
+        var result = await this.mediator.HandleCommandAsync<AddProductCommand, Product>(new AddProductCommand(productName), this.HttpContext.RequestAborted);
 
-        switch (result.StatusCode)
+        switch (result.Status)
         {
-            case StatusCodes.Ok:
+            case Status.OkStatus:
                 return new OkObjectResult(result.Result);
-            case StatusCodes.ValidationFailed:
+            case Status.ValidationFailedStatus:
                 return new BadRequestObjectResult(result.Errors.ToModelStateDictionary());
             default:
                 throw new InvalidOperationException("Case not handled.");

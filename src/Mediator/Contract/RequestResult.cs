@@ -5,13 +5,13 @@ namespace Mediator.Contract;
 
 public record RequestResult : RequestResult<NoResult>
 {
-    internal RequestResult(int statusCode)
-        : base(NoResult.Create(), statusCode)
+    internal RequestResult(Status status)
+        : base(NoResult.Create(), status)
     {
     }
 
-    internal RequestResult(IEnumerable<Error> errors, int statusCode)
-        : base(errors, statusCode)
+    internal RequestResult(IEnumerable<Error> errors, Status status)
+        : base(errors, status)
     {
     }
 
@@ -20,30 +20,30 @@ public record RequestResult : RequestResult<NoResult>
     {
         if (result.IsSuccessful)
         {
-            return new RequestResult(result.StatusCode);
+            return new RequestResult(result.Status);
         }
 
-        return new RequestResult(result.Errors.ToList(), result.StatusCode);
+        return new RequestResult(result.Errors.ToList(), result.Status);
     }
 }
 
 public record RequestResult<TResult>
     where TResult : class?
 {
-    internal RequestResult(TResult result, int statusCode)
+    internal RequestResult(TResult result, Status status)
     {
         this.Result = result;
-        this.StatusCode = statusCode;
+        this.Status = status;
     }
 
-    internal RequestResult(IEnumerable<Error> errors, int statusCode)
+    internal RequestResult(IEnumerable<Error> errors, Status status)
     {
         this.Errors = new Errors(errors);
-        this.StatusCode = statusCode;
+        this.Status = status;
     }
 
     public TResult Result { get; } = default!;
-    public int StatusCode { get; }
-    public bool IsSuccessful => this.StatusCode == StatusCodes.Ok && !this.Errors.Any();
+    public Status Status { get; }
+    public bool IsSuccessful => this.Status == Status.Ok && !this.Errors.Any();
     public Errors Errors { get; } = Errors.Empty;
 }

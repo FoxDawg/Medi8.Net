@@ -14,7 +14,7 @@ public class ProcessingContext
     private readonly ConcurrentDictionary<string, object> payloads = new();
     public bool IsValid => !this.errors.Any();
     protected Errors Errors => new(this.errors);
-    public int StatusCode { get; private set; } = StatusCodes.Ok;
+    public Status Status { get; private set; } = Status.Ok;
 
     public bool TryAddPayload(string key, object payload)
     {
@@ -36,9 +36,9 @@ public class ProcessingContext
         return this.payloads.TryGetValue(key, out var payload) ? payload : null;
     }
 
-    public void WriteTo(int statusCode)
+    public void WriteTo(Status status)
     {
-        this.StatusCode = statusCode;
+        this.Status = status;
     }
 }
 
@@ -87,11 +87,11 @@ public class ProcessingContext<TRequest, TResult> : ProcessingContext<TRequest>
 
     internal RequestResult<TResult> ToRequestResult()
     {
-        if (this.StatusCode != StatusCodes.Ok || !this.IsValid)
+        if (this.Status != Status.Ok || !this.IsValid)
         {
-            return new RequestResult<TResult>(this.Errors, this.StatusCode);
+            return new RequestResult<TResult>(this.Errors, this.Status);
         }
 
-        return new RequestResult<TResult>(this.Result, this.StatusCode);
+        return new RequestResult<TResult>(this.Result, this.Status);
     }
 }

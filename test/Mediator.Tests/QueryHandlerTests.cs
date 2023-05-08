@@ -45,7 +45,7 @@ public sealed class QueryHandlerTests : IDisposable
         // Assert
         using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeTrue();
-        result.StatusCode.Should().Be(StatusCodes.Ok);
+        result.Status.Should().Be(Status.Ok);
         result.Result.Should().BeOfType<GetEntityQuery.Entity>();
         result.Result.As<GetEntityQuery.Entity>().Should().NotBeNull();
         result.Result.As<GetEntityQuery.Entity>().Id.Should().Be(query.Id);
@@ -64,7 +64,7 @@ public sealed class QueryHandlerTests : IDisposable
         // Assert
         using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeTrue();
-        result.StatusCode.Should().Be(StatusCodes.Ok);
+        result.Status.Should().Be(Status.Ok);
         result.Result.Should().BeNull();
     }
 
@@ -81,7 +81,7 @@ public sealed class QueryHandlerTests : IDisposable
         // Assert
         using var scope = new AssertionScope();
         result.IsSuccessful.Should().BeFalse();
-        result.StatusCode.Should().Be(StatusCodes.ValidationFailed);
+        result.Status.Should().Be(Status.ValidationFailed);
         result.Result.Should().BeNull();
         result.Errors.Should().ContainSingle();
     }

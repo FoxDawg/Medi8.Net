@@ -34,7 +34,7 @@ public sealed class PipelineTests
         await pipelineStart.Invoke(context);
 
         // Assert
-        context.StatusCode.Should().Be(2);
+        context.Status.Value.Should().Be(2);
     }
 
     [Fact]
@@ -59,7 +59,7 @@ public sealed class PipelineTests
         await pipelineStart.Invoke(context);
 
         // Assert
-        context.StatusCode.Should().Be(2);
+        context.Status.Value.Should().Be(2);
     }
 
     [Fact]
@@ -78,7 +78,7 @@ public sealed class PipelineTests
         await pipelineStart.Invoke(context);
 
         // Assert
-        context.StatusCode.Should().Be(StatusCodes.Ok);
+        context.Status.Should().Be(Status.Ok);
     }
 
     private class PreFilter : IPreProcessor
@@ -105,11 +105,12 @@ public sealed class PipelineTests
 
     private class StatusCodeProvider
     {
+        public record MyStatus(int Code) : Status(Code);
         public int StatusCode { get; private set; }
 
-        public int GetAndIncrement()
+        public Status GetAndIncrement()
         {
-            return ++this.StatusCode;
+            return new MyStatus(++this.StatusCode);
         }
     }
 }
